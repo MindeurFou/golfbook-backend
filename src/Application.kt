@@ -9,6 +9,7 @@ import io.ktor.response.*
 import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.http.*
+import org.koin.ktor.ext.Koin
 
 fun main(args: Array<String>): Unit = io.ktor.server.jetty.EngineMain.main(args)
 
@@ -18,6 +19,10 @@ fun Application.module(testing: Boolean = false) {
 
     install(ContentNegotiation) {
         gson()
+    }
+
+    install(Koin) {
+
     }
 
     install(Routing) {

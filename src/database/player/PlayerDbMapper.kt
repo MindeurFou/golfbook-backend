@@ -4,7 +4,7 @@ import com.mindeurfou.DatabaseMapper
 import com.mindeurfou.model.player.Player
 import org.jetbrains.exposed.sql.ResultRow
 
-class PlayerDbMapper : DatabaseMapper<ResultRow, Player> {
+object PlayerDbMapper : DatabaseMapper<ResultRow, Player> {
 
     override fun mapFromEntity(resultRow: ResultRow): Player =
         Player(

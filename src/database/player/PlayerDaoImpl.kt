@@ -8,11 +8,13 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class PlayerDaoImpl(
-    private val playerTable : PlayerTable,
-    private val playerDbMapper: PlayerDbMapper
-) : PlayerDao {
+class PlayerDaoImpl : PlayerDao, KoinComponent {
+
+    private val playerTable: PlayerTable by inject()
+    private val playerDbMapper: PlayerDbMapper by inject()
 
     override fun getPlayerById(playerId: Int): Player? = transaction {
         playerTable.select {
