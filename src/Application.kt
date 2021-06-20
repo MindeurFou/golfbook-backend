@@ -4,11 +4,11 @@ import com.mindeurfou.repo.PlayerRepo
 import com.mindeurfou.routes.PlayerRouting
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.gson.*
 import io.ktor.response.*
 import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.http.*
-import io.ktor.serialization.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.jetty.EngineMain.main(args)
 
@@ -17,7 +17,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.jetty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
 
     install(ContentNegotiation) {
-        json()
+        gson()
     }
 
     install(Routing) {

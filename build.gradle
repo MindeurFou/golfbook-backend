@@ -8,10 +8,6 @@ buildscript {
     }
 }
 
-plugins {
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.0'
-}
-
 apply plugin: 'kotlin'
 apply plugin: 'application'
 
@@ -36,6 +32,11 @@ dependencies {
     implementation "io.ktor:ktor-server-jetty:$ktor_version"
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation "io.ktor:ktor-server-core:$ktor_version"
-    implementation "io.ktor:ktor-serialization:$ktor_version"
+    implementation "io.ktor:ktor-gson:$ktor_version"
+
+    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
