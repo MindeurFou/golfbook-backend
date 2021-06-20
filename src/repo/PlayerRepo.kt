@@ -1,6 +1,6 @@
 package com.mindeurfou.repo
 
-import com.mindeurfou.model.Player
+import com.mindeurfou.model.player.Player
 
 object PlayerRepo {
 
@@ -8,6 +8,6 @@ object PlayerRepo {
 
         // TODO
 
-        return Player(id=id, name = "testName", lastName = "testLastName", drawableResourceId = 100)
+        return Player(id=id, name = "testName", lastName = "testLastName", username = "MindeurFou", drawableResourceId = 100)
     }
 }
