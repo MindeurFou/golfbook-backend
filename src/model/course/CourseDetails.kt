@@ -10,3 +10,14 @@ data class CourseDetails(
     val gamesPlayed : Int,
     val holes : List<Hole>
 )
+
+object CourseDetailsMapper {
+    fun mapToCourseDetails(course: Course, holes: List<Hole>): CourseDetails = CourseDetails(
+        id = course.id,
+        name = course.name,
+        numberOfHOles = course.numberOfHOles,
+        par = course.par,
+        gamesPlayed = course.gamesPlayed,
+        holes = holes
+    )
+}

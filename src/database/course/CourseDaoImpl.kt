@@ -1,7 +1,10 @@
 package com.mindeurfou.database.course
 
+import com.mindeurfou.database.hole.HoleDbMapper
 import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.model.course.Course
+import com.mindeurfou.model.course.CourseDetails
+import com.mindeurfou.model.course.CourseDetailsMapper
 import com.mindeurfou.model.course.PostCourseBody
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,15 +14,25 @@ import org.koin.core.component.inject
 class CourseDaoImpl : CourseDao, KoinComponent {
 
     private val courseTable: CourseTable by inject()
-    private val holeTable: HoleTable by inject()
     private val courseDbMapper: CourseDbMapper by inject()
+    private val courseDetailsMapper = CourseDetailsMapper
+    private val holeTable: HoleTable by inject()
+    private val holeDbMapper: HoleDbMapper by inject()
 
-    override fun getCourseById(courseId: Int): Course? = transaction {
-        courseTable.select {
+    override fun getCourseById(courseId: Int): CourseDetails? = transaction {
+
+        val course = courseTable.select {
             courseTable.id eq courseId
         }.mapNotNull {
-            courseDbMapper.mapCourseFromEntity(it)
-        }.singleOrNull()
+            courseDbMapper.mapFromEntity(it)
+        }.singleOrNull() ?: return@transaction null
+
+        val holes = holeTable.select {
+            holeTable.courseId eq courseId
+        }.mapNotNull { resultRow ->
+            holeDbMapper.mapFromEntity(resultRow)
+        }
+        courseDetailsMapper.mapToCourseDetails(course, holes)
     }
 
     override fun insertCourse(postCourse: PostCourseBody): Int {
@@ -40,7 +53,7 @@ class CourseDaoImpl : CourseDao, KoinComponent {
         }
     }
 
-    override fun updateCourse(courseId: Int, postCourse: PostCourseBody): Course? {
+    override fun updateCourse(courseId: Int, postCourse: PostCourseBody): CourseDetails? {
         transaction {
             courseTable.update({courseTable.id eq courseId}) {
                 it[name] = postCourse.name
@@ -64,19 +77,20 @@ class CourseDaoImpl : CourseDao, KoinComponent {
         courseTable.select {
             courseTable.name eq name
         }.mapNotNull {
-            courseDbMapper.mapCourseFromEntity(it)
+            courseDbMapper.mapFromEntity(it)
         }.singleOrNull()
     }
 
     override fun getCourses(filters: Map<String, String?>?): List<Course>? {
-        return null
+        // TODO handle filters
+        return transaction { getAllCourses() }
     }
     
-    private fun getAllCourses(limit: Int = 20, offset: Long = 0) : List<Course> {
+    private fun getAllCourses(limit: Int = 20, offset: Long = 0) : List<Course>? {
         return courseTable.selectAll()
             .limit(limit, offset)
             .orderBy(CourseTable.createdAt to SortOrder.DESC)
-            .map { courseDbMapper.mapCourseFromEntity(it) }
+            .mapNotNull {  courseDbMapper.mapFromEntity(it) }
     }
 
 }

@@ -6,6 +6,6 @@ object CourseTable : IntIdTable() {
     val name = varchar("name", 255)
     val numberOfHoles = integer("numberOfHoles")
     val par = integer("par")
-    val gamesPlayed = integer("gamesPlayed")
-    val createdAt = integer("createdAt")
+    val gamesPlayed = integer("gamesPlayed") // TODO
+    val createdAt = integer("createdAt") // TODO
 }
