@@ -43,6 +43,8 @@ class Course {
     numberOfHoles : Int
     par : Int
     gamesPlayed : Int
+    createdAt : date
+    updatedAt : date
 }
 
 class Hole {
