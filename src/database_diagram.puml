@@ -1,0 +1,96 @@
+@startuml
+
+hide circle
+skinparam linetype ortho
+
+class Hole {
+    * id : integer <<PrimaryKey>>
+    ---
+    * courseId : integer <<FK>>
+    holeNumber : integer
+    par : integer
+}
+
+class Course {
+    * id : integer <<PrimaryKey>>
+    ---
+    name : varchar
+    numberOfHoles : integer
+    par : integer
+    gamesPlayed : integer
+}
+
+class Game {
+    * id : integer <<PrimaryKey>>
+    ---
+    * courseId : integer <<FK>>
+    * scoreBookId : integer <<FK>>
+    * tournamentId : integer <<FK>>
+    state : gameState
+    currentHole : integer
+}
+
+class Player {
+    * id : integer <<PrimaryKey>>
+    ---
+    name : varchar
+    lastName : varchar
+    userName : varchar
+    drawableResourceId : integer
+}
+
+class PlayerGameAssociation {
+    * playerId, gameId  <<PrimaryKey>>
+    ---
+    * playerId : integer <<FK>>
+    * gameId : integer <<FK>>
+}
+
+class ScoreBook {
+    * id : integer <<PrimaryKey>>
+    ---
+    hole1 : integer
+    hole2 : integer
+    hole3 : integer
+    hole4 : integer
+    hole5 : integer
+    hole6 : integer
+    hole7 : integer
+    hole8 : integer
+    hole9 : integer
+    hole10 : integer
+    hole11 : integer
+    hole12 : integer
+    hole13 : integer
+    hole14 : integer
+    hole15 : integer
+    hole16 : integer
+    hole17 : integer
+    hole18 : integer
+}
+
+class Tournament {
+    * id : integer <<PrimaryKey>>
+    ---
+    * leaderBoardId : integer <<FK>>
+    name : varchar
+    state : tournamentState
+}
+
+class LeaderBoardPlayer {
+    * id : integer <<PrimaryKey>>
+    ---
+    * playerId : integer <<FK>>
+    score : integer <<FK>>
+}
+
+
+Course ||--|{ Hole
+Course ||--|{ Game
+Player ||--|| PlayerGameAssociation
+Game ||--|| PlayerGameAssociation
+ScoreBook ||--|| Game
+Game }|--|| Tournament
+LeaderBoardPlayer }|--|| Tournament
+
+@enduml
