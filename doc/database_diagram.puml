@@ -26,7 +26,6 @@ class Game {
     * id : integer <<PrimaryKey>>
     ---
     * courseId : integer <<FK>>
-    * scoreBookId : integer <<FK>>
     * tournamentId : integer? <<FK>>
     state : gameState
     currentHole : integer
@@ -49,8 +48,10 @@ class PlayerGameAssociation {
 }
 
 class ScoreBook {
-    * id : integer <<PrimaryKey>>
+    * playerId, gameId  <<PrimaryKey>>
     ---
+    * playerId : integer <<FK>>
+    * gameId : integer <<FK>>
     hole1 : integer
     hole2 : integer
     hole3 : integer
@@ -89,9 +90,9 @@ class LeaderBoardPlayer {
 
 Course ||--|{ Hole
 Course ||--|{ Game
-Player ||--|| PlayerGameAssociation
-Game ||--|| PlayerGameAssociation
-ScoreBook ||--|| Game
+Player ||--|{ PlayerGameAssociation
+Game ||--|{ PlayerGameAssociation
+ScoreBook }|--|| Game
 Game }|--|| Tournament
 LeaderBoardPlayer }|--|| Tournament
 
