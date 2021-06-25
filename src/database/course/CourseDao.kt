@@ -10,5 +10,5 @@ interface CourseDao {
     fun updateCourse(courseId: Int, postCourse: PostCourseBody): CourseDetails?
     fun deleteCourse(courseId: Int): Boolean
     fun getCourseByName(name: String): Course?
-    fun getCourses(filters: Map<String, String?>?): List<Course>?
+    fun getCourses(filters: Map<String, String?>? = null, limit : Int? = null, offset: Int? = null): List<Course>?
 }

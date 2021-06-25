@@ -20,9 +20,9 @@ class ScoreBookDaoImpl(
     override fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>> = transaction {
         (scoreBookTable innerJoin PlayerTable).select {
             scoreBookTable.gameId eq gameId
-        }.mapNotNull {
+        }.associate {
             scoreBookDbMapper.mapFromEntity(it)
-        }.toMap()
+        }
     }
 
     override fun insertScoreBook(gameId: Int, authorId: Int, courseId: Int): Unit = transaction {
@@ -64,7 +64,7 @@ class ScoreBookDaoImpl(
         scoreBook.forEach { (name, scoreBookEntry) ->
             val playerId = playerDao.getPlayerByUsername(name)?.id ?: throw GBException("Player not found")
 
-            scoreBookTable.update( {GameTable.id eq gameId and (PlayerTable.id eq playerId) } ) {
+            scoreBookTable.update( {scoreBookTable.gameId eq gameId and (scoreBookTable.playerId eq playerId) } ) {
                 it[hole1] = scoreBookEntry[0]!!
                 it[hole2] = scoreBookEntry[1]!!
                 it[hole3] = scoreBookEntry[2]!!

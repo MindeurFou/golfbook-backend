@@ -81,7 +81,7 @@ class CourseDaoImpl : CourseDao, KoinComponent {
         }.singleOrNull()
     }
 
-    override fun getCourses(filters: Map<String, String?>?): List<Course>? {
+    override fun getCourses(filters: Map<String, String?>?, limit: Int?, offset: Int?): List<Course>? {
         // TODO handle filters
         return transaction { getAllCourses() }
     }

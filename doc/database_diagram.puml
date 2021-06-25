@@ -27,7 +27,7 @@ class Game {
     ---
     * courseId : integer <<FK>>
     * tournamentId : integer? <<FK>>
-    state : gameState
+    state : GBState
     currentHole : integer
 }
 
@@ -75,15 +75,15 @@ class ScoreBook {
 class Tournament {
     * id : integer <<PrimaryKey>>
     ---
-    * leaderBoardId : integer <<FK>>
     name : varchar
-    state : tournamentState
+    state : GBState
 }
 
-class LeaderBoardPlayer {
-    * id : integer <<PrimaryKey>>
+class LeaderBoard {
+    * playerId, tournamentId <<PrimaryKey>>
     ---
     * playerId : integer <<FK>>
+    * tournamentId : integer <<FK>>
     score : integer <<FK>>
 }
 
@@ -94,6 +94,6 @@ Player ||--|{ PlayerGameAssociation
 Game ||--|{ PlayerGameAssociation
 ScoreBook }|--|| Game
 Game }|--|| Tournament
-LeaderBoardPlayer }|--|| Tournament
+LeaderBoard }|--|| Tournament
 
 @enduml

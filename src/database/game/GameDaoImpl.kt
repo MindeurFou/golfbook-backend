@@ -1,12 +1,10 @@
 package com.mindeurfou.database.game
 
 import com.mindeurfou.database.game.scorebook.ScoreBookDao
-import com.mindeurfou.database.player.PlayerTable
+import com.mindeurfou.database.tournament.TournamentTable
+import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.Game
-import com.mindeurfou.model.game.GameState
 import com.mindeurfou.model.game.PostGameBody
-import com.mindeurfou.model.game.PutGameBody
-import kotlinx.coroutines.selects.select
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
@@ -32,10 +30,10 @@ class GameDaoImpl(
 
     override fun insertGame(postGame: PostGameBody): Int = transaction {
         val gameId = gameTable.insertAndGetId {
-            it[state] = GameState.WAITING
+            it[state] = GBState.WAITING
             it[currentHole] = 0
             it[courseId] = postGame.courseId
-            it[tournamentId] = postGame.tournamentId
+            it[TournamentTable.id] = postGame.tournamentId
         }.value
 
         scoreBookDao.insertScoreBook(gameId, postGame.authorId, postGame.courseId)

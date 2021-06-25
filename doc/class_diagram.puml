@@ -1,13 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-enum GameState {
-    WAITING
-    PENDING
-    DONE
-}
-
-enum TournamentState {
+enum GBState {
     PENDING
     DONE
 }
@@ -29,12 +23,12 @@ class LeaderBoard {
 
 class Tournament {
     name : String
-    state : TournamentState
+    state : GBState
 }
 
 class Game {
     scoreBook : map<String, List<Int>>
-    state : GameState
+    state : GBState
     currentHole : Int
 }
 
