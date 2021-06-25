@@ -5,22 +5,32 @@ import com.mindeurfou.model.GBState
 import com.mindeurfou.model.tournament.PostTournamentBody
 import com.mindeurfou.model.tournament.PutTournamentBody
 import com.mindeurfou.model.tournament.Tournament
+import com.mindeurfou.model.tournament.TournamentDetails
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class TournamentDaoImpl(
     private val tournamentTable: TournamentTable,
     private val tournamentDbMapper: TournamentDbMapper,
-    private val leaderBoardDao : LeaderBoardDao
+    private val leaderBoardDao : LeaderBoardDao,
+    private val tournamentDetailsDbMapper: TournamentDetailsDbMapper
 ) : TournamentDao {
 
-    override fun getTournamentById(tournamentId: Int): Tournament? = transaction {
+    override fun getTournamentById(tournamentId: Int): TournamentDetails? = transaction {
         val leaderBoard = leaderBoardDao.getLeaderBoardByTournamentId(tournamentId)
 
         tournamentTable.select {
             tournamentTable.id eq tournamentId
         }.mapNotNull {
-            tournamentDbMapper.mapFromEntity(it, leaderBoard)
+            tournamentDetailsDbMapper.mapFromEntity(it, leaderBoard)
+        }.singleOrNull()
+    }
+
+    private fun getTournamentPreviewById(tournamentId: Int): Tournament? {
+        return tournamentTable.select {
+            tournamentTable.id eq tournamentId
+        }.mapNotNull {
+            tournamentDbMapper.mapFromEntity(it)
         }.singleOrNull()
     }
 
@@ -36,7 +46,7 @@ class TournamentDaoImpl(
             putTournament.name?.let { newName -> it[name] = newName  }
             putTournament.state?.let { newState -> it[state] = newState }
         }
-        getTournamentById(putTournament.id)
+        getTournamentPreviewById(putTournament.id)
     }
 
     override fun updateTournamentLeaderBoard(tournamentId: Int, leaderBoard: Map<String, Int>) = leaderBoardDao.updateLeaderBoard(tournamentId, leaderBoard)
@@ -56,8 +66,7 @@ class TournamentDaoImpl(
             .limit(limit, offset)
             .orderBy(tournamentTable.createdAt to SortOrder.DESC)
             .mapNotNull {
-                val leaderBoard = leaderBoardDao.getLeaderBoardByTournamentId(it[tournamentTable.id].value)
-                tournamentDbMapper.mapFromEntity(it, leaderBoard)
+                tournamentDbMapper.mapFromEntity(it)
             }
 
 }
