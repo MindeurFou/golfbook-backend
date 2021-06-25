@@ -1,10 +1,13 @@
 package com.mindeurfou.database.game
 
+import com.mindeurfou.database.course.CourseDao
+import com.mindeurfou.database.course.CourseTable
 import com.mindeurfou.database.game.scorebook.ScoreBookDao
 import com.mindeurfou.database.tournament.TournamentTable
 import com.mindeurfou.model.GBState
-import com.mindeurfou.model.game.Game
+import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.PostGameBody
+import com.mindeurfou.model.game.outgoing.GameDetails
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
@@ -14,17 +17,18 @@ import org.jetbrains.exposed.sql.update
 class GameDaoImpl(
     private val gameDbMapper: GameDbMapper,
     private val gameTable: GameTable,
+    private val gameDetailsDbMapper: GameDetailsDbMapper,
     private val scoreBookDao: ScoreBookDao,
+    private val courseDao: CourseDao
 ) : GameDao{
 
-    override fun getGameById(gameId: Int): Game? = transaction {
+    override fun getGameById(gameId: Int): GameDetails? = transaction {
+        val scoreBook = scoreBookDao.getScoreBookByGameId(gameId)
 
-        val scorebook = scoreBookDao.getScoreBookByGameId(gameId)
-
-        gameTable.select {
+        (gameTable innerJoin CourseTable).select {
             GameTable.id eq gameId
         }.mapNotNull {
-            gameDbMapper.mapFromEntity(it, scorebook)
+            gameDetailsDbMapper.mapFromEntity(it, scoreBook)
         }.singleOrNull()
     }
 
@@ -45,16 +49,15 @@ class GameDaoImpl(
 
     override fun deleteGamePlayer(gameId: Int, playerId: Int) = scoreBookDao.deleteScoreBookPlayer(gameId, playerId)
 
-    override fun updateGame(game: Game): Game? = transaction {
-        scoreBookDao.updateScoreBook(game.id, game.scoreBook)
+    override fun updateGame(gameDetails: GameDetails): GameDetails? = transaction {
+        scoreBookDao.updateScoreBook(gameDetails.id, gameDetails.scoreBook)
 
-        gameTable.update( {GameTable.id eq game.id} ) {
-            it[state] = game.state
-            it[currentHole] = game.currentHole
+        gameTable.update( {GameTable.id eq gameDetails.id} ) {
+            it[state] = gameDetails.state
+            it[currentHole] = gameDetails.currentHole
             it[courseId] = courseId
         }
-
-        getGameById(game.id)
+        getGameById(gameDetails.id)
     }
 
     override fun deleteGame(gameId: Int): Boolean = transaction {
@@ -67,7 +70,9 @@ class GameDaoImpl(
             gameTable.tournamentId eq tournamentId
         }.map {
             val scoreBook = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)
-            gameDbMapper.mapFromEntity(it,scoreBook)
+            val players = scoreBook.keys.toList()
+
+            gameDbMapper.mapFromEntity(it, players)
         }
     }
 

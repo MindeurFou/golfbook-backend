@@ -7,4 +7,5 @@ data class TournamentDetails(
     val name : String,
     val state: GBState,
     val leaderBoard: Map<String, Int>
+    // TODO rajouter liste des game
 )
