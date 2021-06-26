@@ -8,8 +8,6 @@ import org.koin.dsl.module
 
 object PlayerDaoInjection {
     val playerDaoModule = module {
-        single { PlayerTable }
-        single { PlayerDbMapper }
         single <PlayerDao>{ PlayerDaoImpl() }
     }
 }

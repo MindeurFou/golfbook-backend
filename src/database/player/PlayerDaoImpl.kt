@@ -5,19 +5,14 @@ import com.mindeurfou.model.player.PostPlayerBody
 import com.mindeurfou.model.player.PutPlayerBody
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class PlayerDaoImpl(
-    private val playerDbMapper: PlayerDbMapper
-) : PlayerDao, KoinComponent {
-
+class PlayerDaoImpl : PlayerDao {
 
     override fun getPlayerById(playerId: Int): Player? = transaction {
         PlayerTable.select {
             (PlayerTable.id eq playerId)
         }.mapNotNull {
-            playerDbMapper.mapFromEntity(it)
+            PlayerDbMapper.mapFromEntity(it)
         }.singleOrNull()
     }
 
@@ -30,7 +25,7 @@ class PlayerDaoImpl(
         }.value
     }
 
-    override fun updateUser(playerId: Int, putPlayer: PutPlayerBody): Player? {
+    override fun updatePlayer(playerId: Int, putPlayer: PutPlayerBody): Player? {
         transaction {
             PlayerTable.update( {PlayerTable.id eq playerId} ) {
                 it[username] = putPlayer.username
@@ -40,7 +35,7 @@ class PlayerDaoImpl(
         return getPlayerById(playerId)
     }
 
-    override fun deleteUser(playerId: Int) = transaction {
+    override fun deletePlayer(playerId: Int) = transaction {
         PlayerTable.deleteWhere { (PlayerTable.id eq playerId) } > 0
     }
 
@@ -48,7 +43,7 @@ class PlayerDaoImpl(
         PlayerTable.select {
             PlayerTable.username eq username
         }.mapNotNull {
-            playerDbMapper.mapFromEntity(it)
+            PlayerDbMapper.mapFromEntity(it)
         }.singleOrNull()
     }
 }
