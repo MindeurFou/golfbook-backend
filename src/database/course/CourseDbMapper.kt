@@ -1,8 +1,7 @@
 package com.mindeurfou.database.course
 
 import com.mindeurfou.DatabaseMapper
-import com.mindeurfou.model.course.Course
-import com.mindeurfou.model.course.CourseDetails
+import com.mindeurfou.model.course.outgoing.Course
 import org.jetbrains.exposed.sql.ResultRow
 
 object CourseDbMapper : DatabaseMapper<ResultRow, Course> {
@@ -12,6 +11,7 @@ object CourseDbMapper : DatabaseMapper<ResultRow, Course> {
         name = resultRow[CourseTable.name],
         numberOfHOles = resultRow[CourseTable.numberOfHoles],
         par = resultRow[CourseTable.par],
-        gamesPlayed = resultRow[CourseTable.gamesPlayed]
+        gamesPlayed = resultRow[CourseTable.gamesPlayed],
+        createdAt = resultRow[CourseTable.createdAt]
     )
 }

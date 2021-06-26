@@ -1,7 +1,6 @@
 package com.mindeurfou.model.game.outgoing
 
 import com.mindeurfou.model.GBState
-import com.mindeurfou.model.course.Course
 
 data class GameDetails(
     val id : Int,

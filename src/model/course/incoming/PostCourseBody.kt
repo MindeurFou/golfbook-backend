@@ -1,11 +1,11 @@
-package com.mindeurfou.model.course
+package com.mindeurfou.model.course.incoming
 
-import com.mindeurfou.model.player.Hole
+import com.mindeurfou.model.hole.incoming.PostHoleBody
 
 data class PostCourseBody(
     val name : String,
     val numberOfHOles : Int,
     val par : Int,
-    val holes : List<Hole>
+    val holes : List<PostHoleBody>
 )
 

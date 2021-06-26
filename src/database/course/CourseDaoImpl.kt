@@ -2,82 +2,86 @@ package com.mindeurfou.database.course
 
 import com.mindeurfou.database.hole.HoleDbMapper
 import com.mindeurfou.database.hole.HoleTable
-import com.mindeurfou.model.course.Course
-import com.mindeurfou.model.course.CourseDetails
-import com.mindeurfou.model.course.CourseDetailsMapper
-import com.mindeurfou.model.course.PostCourseBody
+import com.mindeurfou.model.course.outgoing.Course
+import com.mindeurfou.model.course.outgoing.CourseDetails
+import com.mindeurfou.model.course.outgoing.CourseDetailsMapper
+import com.mindeurfou.model.course.incoming.PostCourseBody
+import com.mindeurfou.model.course.incoming.PutCourseBody
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class CourseDaoImpl : CourseDao, KoinComponent {
-
-    private val courseTable: CourseTable by inject()
-    private val courseDbMapper: CourseDbMapper by inject()
-    private val courseDetailsMapper = CourseDetailsMapper
-    private val holeTable: HoleTable by inject()
-    private val holeDbMapper: HoleDbMapper by inject()
+class CourseDaoImpl : CourseDao {
 
     override fun getCourseById(courseId: Int): CourseDetails? = transaction {
 
-        val course = courseTable.select {
-            courseTable.id eq courseId
+        val course = CourseTable.select {
+            CourseTable.id eq courseId
         }.mapNotNull {
-            courseDbMapper.mapFromEntity(it)
+            CourseDbMapper.mapFromEntity(it)
         }.singleOrNull() ?: return@transaction null
 
-        val holes = holeTable.select {
-            holeTable.courseId eq courseId
+        val holes = HoleTable.select {
+            HoleTable.courseId eq courseId
         }.mapNotNull { resultRow ->
-            holeDbMapper.mapFromEntity(resultRow)
+            HoleDbMapper.mapFromEntity(resultRow)
         }
-        courseDetailsMapper.mapToCourseDetails(course, holes)
+        CourseDetailsMapper.mapToCourseDetails(course, holes)
     }
 
     override fun insertCourse(postCourse: PostCourseBody): Int {
         return transaction {
-            val courseId = courseTable.insertAndGetId {
+            val courseId = CourseTable.insertAndGetId {
                 it[name] = postCourse.name
                 it[numberOfHoles] = postCourse.numberOfHOles
-                it[par] = postCourse.numberOfHOles
+                it[par] = postCourse.par
                 it[gamesPlayed] = 0
             }.value
 
-            holeTable.batchInsert(postCourse.holes) { hole ->
-                this[holeTable.courseId] = courseId
-                this[holeTable.holeNumber] = hole.holeNumber
-                this[holeTable.par] = hole.par
+            HoleTable.batchInsert(postCourse.holes) { hole ->
+                this[HoleTable.courseId] = courseId
+                this[HoleTable.holeNumber] = hole.holeNumber
+                this[HoleTable.par] = hole.par
             }
             courseId
         }
     }
 
-    override fun updateCourse(courseId: Int, postCourse: PostCourseBody): CourseDetails? {
+    override fun updateCourse(putCourse: PutCourseBody): CourseDetails? {
         transaction {
-            courseTable.update({courseTable.id eq courseId}) {
-                it[name] = postCourse.name
-                it[numberOfHoles] = postCourse.numberOfHOles
-                it[par] = postCourse.numberOfHOles
+            val updatedColumns = CourseTable.update({CourseTable.id eq putCourse.id}) {
+                it[name] = putCourse.name
+                it[numberOfHoles] = putCourse.numberOfHOles
+                it[par] = putCourse.par
+                it[gamesPlayed] = putCourse.gamesPlayed
             }
 
-            holeTable.batchInsert(postCourse.holes) { hole ->
-                this[holeTable.par] = hole.par
-                this[holeTable.holeNumber] = hole.holeNumber
+            if (updatedColumns == 0) return@transaction null
+
+            putCourse.holes.forEach { hole ->
+                HoleTable.update( {HoleTable.id eq hole.id } ) {
+                    it[par] = hole.par
+                    it[holeNumber] = hole.holeNumber
+                }
             }
+
         }
-        return getCourseById(courseId)
+        return getCourseById(putCourse.id)
     }
 
     override fun deleteCourse(courseId: Int) = transaction {
-        courseTable.deleteWhere { courseTable.id eq courseId } > 0
+        val columnDeleted = CourseTable.deleteWhere { CourseTable.id eq courseId }
+
+        if (columnDeleted == 0) return@transaction false
+
+        HoleTable.deleteWhere { HoleTable.courseId eq courseId }
+        true
     }
 
     override fun getCourseByName(name: String): Course? = transaction {
-        courseTable.select {
-            courseTable.name eq name
+        CourseTable.select {
+            CourseTable.name eq name
         }.mapNotNull {
-            courseDbMapper.mapFromEntity(it)
+            CourseDbMapper.mapFromEntity(it)
         }.singleOrNull()
     }
 
@@ -87,10 +91,10 @@ class CourseDaoImpl : CourseDao, KoinComponent {
     }
     
     private fun getAllCourses(limit: Int = 20, offset: Long = 0) : List<Course>? {
-        return courseTable.selectAll()
+        return CourseTable.selectAll()
             .limit(limit, offset)
             .orderBy(CourseTable.createdAt to SortOrder.DESC)
-            .mapNotNull {  courseDbMapper.mapFromEntity(it) }
+            .mapNotNull {  CourseDbMapper.mapFromEntity(it) }
     }
 
 }

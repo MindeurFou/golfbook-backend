@@ -1,6 +1,7 @@
-package com.mindeurfou.model.course
+package com.mindeurfou.model.course.outgoing
 
-import com.mindeurfou.model.player.Hole
+import com.mindeurfou.model.hole.outgoing.Hole
+import java.time.LocalDate
 
 data class CourseDetails(
     val id: Int,
@@ -8,6 +9,7 @@ data class CourseDetails(
     val numberOfHOles : Int,
     val par : Int,
     val gamesPlayed : Int,
+    val createdAt : LocalDate,
     val holes : List<Hole>
 )
 
@@ -18,6 +20,7 @@ object CourseDetailsMapper {
         numberOfHOles = course.numberOfHOles,
         par = course.par,
         gamesPlayed = course.gamesPlayed,
+        createdAt = course.createdAt,
         holes = holes
     )
 }

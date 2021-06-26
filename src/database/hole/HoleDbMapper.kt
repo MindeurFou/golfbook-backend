@@ -1,7 +1,7 @@
 package com.mindeurfou.database.hole
 
 import com.mindeurfou.DatabaseMapper
-import com.mindeurfou.model.player.Hole
+import com.mindeurfou.model.hole.outgoing.Hole
 import org.jetbrains.exposed.sql.ResultRow
 
 object HoleDbMapper : DatabaseMapper<ResultRow, Hole> {
