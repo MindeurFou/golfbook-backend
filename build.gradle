@@ -45,9 +45,13 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+
     implementation "io.insert-koin:koin-ktor:$koin_version"
 
-    testImplementation "io.insert-koin:koin-test:$koin_version"
+    implementation "com.zaxxer:HikariCP:$hikariCP_version"
 
+    implementation "org.postgresql:postgresql:$jdbcpostgresql_version"
+
+    testImplementation "io.insert-koin:koin-test:$koin_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
