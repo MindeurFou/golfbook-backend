@@ -24,6 +24,10 @@ sourceSets {
     test.resources.srcDirs = ['testresources']
 }
 
+test {
+    useJUnitPlatform()
+}
+
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile){
     kotlinOptions {
         jvmTarget = "1.8"
@@ -54,4 +58,8 @@ dependencies {
 
     testImplementation "io.insert-koin:koin-test:$koin_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+    testImplementation "org.assertj:assertj-core:3.11.1"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.4.2"
+    testImplementation "com.h2database:h2:1.4.196"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.4.2"
 }
