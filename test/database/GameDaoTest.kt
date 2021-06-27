@@ -21,9 +21,11 @@ import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.outgoing.GameDetails
 import com.mindeurfou.model.player.Player
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
+import com.mindeurfou.utils.GBException
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
@@ -219,13 +221,14 @@ class GameDaoTest : BaseDaoTest(){
             val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
-            var gameDetails = gameDao.addGamePlayer(gameId!!, 4, courseId)
-            assertEquals(gameDetails, null)
+            assertThrows(GBException::class.java) {
+                gameDao.addGamePlayer(gameId!!, 4, courseId)
+            }
+            assertThrows(GBException::class.java) {
+                gameDao.addGamePlayer(gameId!!, otherPlayerId, 5)
+            }
 
-            gameDetails = gameDao.addGamePlayer(gameId, otherPlayerId, 5)
-            assertEquals(gameDetails, null)
-
-            gameDetails = gameDao.addGamePlayer(gameId, otherPlayerId, courseId)
+            val gameDetails = gameDao.addGamePlayer(gameId!!, otherPlayerId, courseId)
 
             val scoreBook = DbInstrumentation.initialScoreBook(validPostPlayerBody.username) + DbInstrumentation.initialScoreBook(otherValidPostPlayer.username)
 
@@ -255,11 +258,21 @@ class GameDaoTest : BaseDaoTest(){
             val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
-            var result = gameDao.deleteGamePlayer(gameId!!, 3)
-            assertEquals(result, false)
+            assertThrows(GBException::class.java) {
+                gameDao.deleteGamePlayer(gameId!!, 3)
+            }
 
-            result = gameDao.deleteGamePlayer(gameId, playerId)
-            assertEquals(result, true)
+            val gameDetails = gameDao.deleteGamePlayer(gameId!!, playerId)
+            assertThat(gameDetails).isEqualTo( null)
+//                GameDetails(
+//                    gameId,
+//                    GBState.WAITING,
+//                    validCourseBody.name,
+//                    courseId,
+//                    1,
+//                    DbInstrumentation.initialScoreBook(validPostPlayerBody.username)
+//                )
+
         }
     }
 

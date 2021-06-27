@@ -6,6 +6,7 @@ import com.mindeurfou.model.hole.incoming.PostHoleBody
 import com.mindeurfou.model.hole.outgoing.Hole
 import com.mindeurfou.model.player.PostPlayerBody
 import com.mindeurfou.model.player.PutPlayerBody
+import com.mindeurfou.model.tournament.PutTournamentBody
 
 object DbInstrumentation {
 

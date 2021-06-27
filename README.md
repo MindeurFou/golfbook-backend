@@ -13,4 +13,4 @@ TODO
 
 ## TODOS
 
-- Make different class for input - model - output
+- place exceptions on bad db calls

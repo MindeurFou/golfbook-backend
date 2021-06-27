@@ -25,10 +25,14 @@ class GameDaoImpl : GameDao{
         playerDao = PlayerDaoImpl()
     )
 
+    // automatically delete game if no scoreBook is associate
     override fun getGameById(gameId: Int): GameDetails? = transaction {
         val scoreBook = scoreBookDao.getScoreBookByGameId(gameId)
 
-        scoreBook ?: return@transaction null
+        scoreBook ?: run {
+            deleteGame(gameId)
+            return@transaction null
+        }
 
         (GameTable innerJoin CourseTable).select {
             GameTable.id eq gameId
@@ -62,12 +66,17 @@ class GameDaoImpl : GameDao{
 
     override fun addGamePlayer(gameId: Int, playerId: Int, courseId: Int): GameDetails? {
         val inserted = scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
-        if (!inserted) return null
+        if (!inserted) throw GBException("Couldn't add player to game", true)
 
         return getGameById(gameId)
     }
 
-    override fun deleteGamePlayer(gameId: Int, playerId: Int) = scoreBookDao.deleteScoreBookPlayer(gameId, playerId)
+    override fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails? {
+        val deleted = scoreBookDao.deleteScoreBookPlayer(gameId, playerId)
+        if (!deleted) throw GBException("Couldn't deleted player from scorebook")
+
+        return getGameById(gameId)
+    }
 
     override fun updateScoreBook(putScoreBook: PutScoreBook): Map<String, List<Int?>>? =
         scoreBookDao.updateScoreBook(putScoreBook)
@@ -110,7 +119,7 @@ class GameDaoImpl : GameDao{
     }
 
 
-    private class ScoreBookDaoImpl(
+    private inner class ScoreBookDaoImpl(
         private val courseDao : CourseDao,
         private val playerDao : PlayerDao
     ) : ScoreBookDao{
@@ -132,7 +141,7 @@ class GameDaoImpl : GameDao{
             playerDao.getPlayerById(authorId) ?: return@transaction false
 
             val query = ScoreBookTable.select { ScoreBookTable.gameId eq gameId and (ScoreBookTable.playerId eq authorId) }
-            if (!query.empty()) return@transaction false
+            if (!query.empty()) return@transaction false //throw exception would ve better...
 
             ScoreBookTable.insert {
                 it[playerId] = authorId
@@ -169,7 +178,7 @@ class GameDaoImpl : GameDao{
 
         override fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>>? = transaction {
             scoreBook.scoreBook.forEach { (playerId, scoreBookEntry) ->
-                playerDao.getPlayerById(playerId) ?: throw GBException("Player not found")
+                playerDao.getPlayerById(playerId) ?: return@transaction null
 
                 ScoreBookTable.update( {ScoreBookTable.gameId eq scoreBook.gameId and (ScoreBookTable.playerId eq playerId) } ) {
                     it[hole1] = scoreBookEntry[0]!!

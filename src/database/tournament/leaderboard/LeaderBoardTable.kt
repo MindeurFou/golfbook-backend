@@ -9,5 +9,9 @@ object LeaderBoardTable : Table() {
     val score = integer("score").default(0)
     val playerId = reference("playerId", PlayerTable)
     val tournamentId = reference("tournamentId", TournamentTable)
-    override val primaryKey = PrimaryKey(PlayerTable.id, TournamentTable.id, name = "id")
+    override val primaryKey = PrimaryKey(playerId, tournamentId, name = "id")
+}
+
+object LeaderBoardDbMapper {
+    fun mapFromEntity(resultRow: ResultRow): Pair<String, Int> = Pair(resultRow[PlayerTable.username], resultRow[LeaderBoardTable.score])
 }

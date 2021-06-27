@@ -1,12 +1,17 @@
 package com.mindeurfou.database.tournament
 
-import com.mindeurfou.database.tournament.leaderboard.LeaderBoardDao
-import com.mindeurfou.database.tournament.leaderboard.LeaderBoardDaoImpl
+import com.mindeurfou.database.player.PlayerDao
+import com.mindeurfou.database.player.PlayerDaoImpl
+import com.mindeurfou.database.player.PlayerTable
+import com.mindeurfou.database.tournament.leaderboard.LeaderBoardDbMapper
+import com.mindeurfou.database.tournament.leaderboard.LeaderBoardTable
 import com.mindeurfou.model.GBState
+import com.mindeurfou.model.tournament.PutLeaderBoardBody
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.model.tournament.PutTournamentBody
-import com.mindeurfou.model.tournament.Tournament
-import com.mindeurfou.model.tournament.TournamentDetails
+import com.mindeurfou.model.tournament.outgoing.Tournament
+import com.mindeurfou.model.tournament.outgoing.TournamentDetails
+import com.mindeurfou.utils.GBException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -15,20 +20,13 @@ class TournamentDaoImpl : TournamentDao {
     private val leaderBoardDao: LeaderBoardDao = LeaderBoardDaoImpl()
 
     override fun getTournamentById(tournamentId: Int): TournamentDetails? = transaction {
+
         val leaderBoard = leaderBoardDao.getLeaderBoardByTournamentId(tournamentId)
 
         TournamentTable.select {
             TournamentTable.id eq tournamentId
         }.mapNotNull {
             TournamentDetailsDbMapper.mapFromEntity(it, leaderBoard)
-        }.singleOrNull()
-    }
-
-    private fun getTournamentPreviewById(tournamentId: Int): Tournament? {
-        return TournamentTable.select {
-            TournamentTable.id eq tournamentId
-        }.mapNotNull {
-            TournamentDbMapper.mapFromEntity(it)
         }.singleOrNull()
     }
 
@@ -39,15 +37,30 @@ class TournamentDaoImpl : TournamentDao {
         }.value
     }
 
-    override fun updateTournament(putTournament: PutTournamentBody): Tournament? = transaction {
+    override fun updateTournament(putTournament: PutTournamentBody): TournamentDetails? = transaction {
         TournamentTable.update( {TournamentTable.id eq putTournament.id}) {
             putTournament.name?.let { newName -> it[name] = newName  }
             putTournament.state?.let { newState -> it[state] = newState }
         }
-        getTournamentPreviewById(putTournament.id)
+        getTournamentById(putTournament.id)
     }
 
-    override fun updateTournamentLeaderBoard(tournamentId: Int, leaderBoard: Map<String, Int>) = leaderBoardDao.updateLeaderBoard(tournamentId, leaderBoard)
+    override fun updateTournamentLeaderBoard(putLeaderBoard: PutLeaderBoardBody): Map<String, Int>? =
+        leaderBoardDao.updateLeaderBoard(putLeaderBoard)
+
+    override fun addTournamentPlayer(tournamentId: Int, playerId: Int): Map<String, Int>? {
+        val inserted = leaderBoardDao.insertLeaderBoardPlayer(tournamentId, playerId)
+        if (!inserted) throw GBException("Couldn't insert player into leaderboard")
+
+        return leaderBoardDao.getLeaderBoardByTournamentId(tournamentId)
+    }
+
+    override fun deleteTournamentPlayer(tournamentId: Int, playerId: Int): Map<String, Int>? {
+        val deleted = leaderBoardDao.deleteLeaderBoardPlayer(tournamentId, playerId)
+        if (!deleted) throw GBException("Couldn't deleted player from leaderboard")
+
+        return leaderBoardDao.getLeaderBoardByTournamentId(tournamentId)
+    }
 
     override fun deleteTournament(tournamentId: Int): Boolean = transaction {
         leaderBoardDao.deleteLeaderBoard(tournamentId)
@@ -67,4 +80,62 @@ class TournamentDaoImpl : TournamentDao {
                 TournamentDbMapper.mapFromEntity(it)
             }
 
+    interface LeaderBoardDao {
+        fun getLeaderBoardByTournamentId(tournamentId: Int): Map<String, Int>?
+        fun insertLeaderBoardPlayer(tournamentId: Int, authorId: Int): Boolean
+        fun deleteLeaderBoardPlayer(tournamentId: Int, playerId: Int): Boolean
+        fun updateLeaderBoard(putLeaderBoard: PutLeaderBoardBody): Map<String, Int>?
+        fun deleteLeaderBoard(tournamentId: Int): Boolean
+    }
+
+    private class LeaderBoardDaoImpl : LeaderBoardDao {
+
+        private val playerDao: PlayerDao = PlayerDaoImpl()
+
+        override fun getLeaderBoardByTournamentId(tournamentId: Int): Map<String, Int>? = transaction {
+            val query = (LeaderBoardTable innerJoin PlayerTable).select {
+                LeaderBoardTable.tournamentId eq tournamentId
+            }
+            if (query.empty()) return@transaction null
+
+            query.associate {
+                LeaderBoardDbMapper.mapFromEntity(it)
+            }
+        }
+
+        override fun insertLeaderBoardPlayer(tournamentId: Int, authorId: Int): Boolean = transaction {
+            playerDao.getPlayerById(authorId) ?: return@transaction false
+
+            val query = LeaderBoardTable.select { LeaderBoardTable.tournamentId eq tournamentId and (LeaderBoardTable.playerId eq authorId) }
+            if (!query.empty()) return@transaction false
+
+            LeaderBoardTable.insert {
+                it[playerId] = authorId
+                it[LeaderBoardTable.tournamentId] = tournamentId
+                it[score] = 0
+            }
+            true
+        }
+
+        override fun deleteLeaderBoardPlayer(tournamentId: Int, playerId : Int): Boolean = transaction {
+            LeaderBoardTable.deleteWhere { LeaderBoardTable.tournamentId eq tournamentId and (LeaderBoardTable.playerId eq playerId ) } > 0
+        }
+
+        override fun updateLeaderBoard(putLeaderBoard: PutLeaderBoardBody): Map<String, Int>? = transaction {
+            putLeaderBoard.leaderBoard.forEach { (name, score) ->
+                val playerId = playerDao.getPlayerByUsername(name)?.id ?: throw GBException("Player not found")
+
+                val updatedColumns = LeaderBoardTable.update ({ LeaderBoardTable.playerId eq playerId and (LeaderBoardTable.tournamentId eq putLeaderBoard.tournamentId) } ) {
+                    it[LeaderBoardTable.score] = score
+                }
+                if (updatedColumns == 0) throw GBException("LeaderBoardTable entity hasn't been found")
+            }
+            getLeaderBoardByTournamentId(putLeaderBoard.tournamentId)
+        }
+
+        override fun deleteLeaderBoard(tournamentId: Int): Boolean = transaction {
+            LeaderBoardTable.deleteWhere { LeaderBoardTable.tournamentId eq tournamentId } > 0
+        }
+
+    }
 }
