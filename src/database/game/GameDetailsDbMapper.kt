@@ -9,6 +9,7 @@ object GameDetailsDbMapper {
         id = resultRow[GameTable.id].value,
         state = resultRow[GameTable.state],
         courseName = resultRow[CourseTable.name],
+        courseId = resultRow[CourseTable.id].value,
         currentHole = resultRow[GameTable.currentHole],
         scoreBook = scoreBook,
     )

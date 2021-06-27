@@ -1,6 +1,6 @@
 package com.mindeurfou.database.tournament
 
-import com.mindeurfou.model.tournament.PostTournamentBody
+import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.model.tournament.PutTournamentBody
 import com.mindeurfou.model.tournament.Tournament
 import com.mindeurfou.model.tournament.TournamentDetails

@@ -1,6 +1,7 @@
 package com.mindeurfou.database
 
 import com.mindeurfou.model.course.incoming.PostCourseBody
+import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.hole.incoming.PostHoleBody
 import com.mindeurfou.model.hole.outgoing.Hole
 import com.mindeurfou.model.player.PostPlayerBody
@@ -13,6 +14,13 @@ object DbInstrumentation {
         "pouriel",
         "MindeurFou",
         247933224
+    )
+
+    fun otherValidPostPlayerBody() = PostPlayerBody(
+        "jay",
+        "adams",
+        "LeKing",
+        272939308
     )
 
     fun validPutPlayerBody() = PutPlayerBody(
@@ -50,4 +58,9 @@ object DbInstrumentation {
         36,
         validPostHoleBodies()
     )
+
+    fun initialScoreBook(name: String) = mapOf(
+        name to listOf<Int?>(null, null, null, null, null, null, null, null, null)
+    )
+
 }

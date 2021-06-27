@@ -1,4 +1,4 @@
-package com.mindeurfou.model.game
+package com.mindeurfou.model.game.incoming
 
 data class PostGameBody(
     val courseId: Int,

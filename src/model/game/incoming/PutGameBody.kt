@@ -1,8 +1,9 @@
-package com.mindeurfou.model.game
+package com.mindeurfou.model.game.incoming
+
+import com.mindeurfou.model.GBState
 
 data class PutGameBody(
-    val authorOfUpdateId: Int,
-    val currentHole: Int,
+    val id: Int,
+    val state: GBState,
     val courseId: Int,
-    val scoreBook: Map<String, List<Int?>>
 )
