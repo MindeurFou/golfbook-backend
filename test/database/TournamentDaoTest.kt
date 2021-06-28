@@ -33,7 +33,10 @@ class TournamentDaoTest : BaseDaoTest(){
             val postTournament = PostTournamentBody("tournoi du sale")
             val tournamentId = tournamentDao.insertTournament(postTournament)
 
-            val tournament = tournamentDao.getTournamentById(tournamentId)
+            var tournament = tournamentDao.getTournamentById(2)
+            assertEquals(null, tournament)
+
+            tournament = tournamentDao.getTournamentById(tournamentId)
             assertThat(tournament).isEqualTo(
                 TournamentDetails(
                     tournamentId,
@@ -78,6 +81,69 @@ class TournamentDaoTest : BaseDaoTest(){
             )
         }
     }
+
+    @Test
+    fun deleteTournament() {
+        transaction {
+            createSchema()
+            val postTournament = PostTournamentBody("tournoi du sale")
+            val tournamentId = tournamentDao.insertTournament(postTournament)
+
+            var result = tournamentDao.deleteTournament(3)
+            assertEquals(false, result)
+
+            result = tournamentDao.deleteTournament(tournamentId)
+            assertEquals(true, result)
+            val tournament = tournamentDao.getTournamentById(tournamentId)
+            assertEquals(null, tournament)
+        }
+    }
+
+    //test getTournaments ?
+
+    @Test
+    fun addTournamentPlayer() {
+        transaction {
+            createSchema()
+            val validPostTournamentBody = PostTournamentBody("tournoi du sale")
+            val tournamentId = tournamentDao.insertTournament(validPostTournamentBody)
+
+            val validPostPlayerBody = DbInstrumentation.validPostPlayerBody()
+
+            assertThrows(GBException::class.java) {
+                tournamentDao.addTournamentPlayer(tournamentId, 1)
+            }
+
+            val playerId = playerDao.insertPlayer(validPostPlayerBody)
+            val leaderBoard = tournamentDao.addTournamentPlayer(tournamentId, playerId)
+            assertThat(leaderBoard).isEqualTo(mapOf(validPostPlayerBody.username to 0))
+
+            assertThrows(GBException::class.java) {
+                tournamentDao.addTournamentPlayer(tournamentId, playerId)
+            }
+        }
+    }
+
+    @Test
+    fun deleteTournamentPlayer() {
+        transaction {
+            createSchema()
+            
+            val tournamentId = tournamentDao.insertTournament(PostTournamentBody("tournoi du sale"))
+
+            assertThrows(GBException::class.java) {
+                tournamentDao.deleteTournamentPlayer(tournamentId, 1)
+            }    
+
+            val validPlayer = DbInstrumentation.validPostPlayerBody()
+            val playerId = playerDao.insertPlayer(validPlayer)
+
+            tournamentDao.addTournamentPlayer(tournamentId, playerId)
+            val leaderBoard = tournamentDao.deleteTournamentPlayer(tournamentId, playerId)
+            assertEquals(null, leaderBoard)
+        }
+    }
+
 
     @Test
     fun updateTournamentLeaderBoard() {

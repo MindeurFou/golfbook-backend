@@ -29,11 +29,6 @@ class GameDaoImpl : GameDao{
     override fun getGameById(gameId: Int): GameDetails? = transaction {
         val scoreBook = scoreBookDao.getScoreBookByGameId(gameId)
 
-        scoreBook ?: run {
-            deleteGame(gameId)
-            return@transaction null
-        }
-
         (GameTable innerJoin CourseTable).select {
             GameTable.id eq gameId
         }.mapNotNull {
@@ -41,11 +36,11 @@ class GameDaoImpl : GameDao{
         }.singleOrNull()
     }
 
-    override fun insertGame(postGame: PostGameBody): Int? = transaction {
+    override fun insertGame(postGame: PostGameBody): Int = transaction {
 
         postGame.tournamentId?.let { id ->
             val query = TournamentTable.select { TournamentTable.id eq id }
-            if (query.empty()) return@transaction null
+            if (query.empty()) throw GBException("Given tournamentId doesn't exist in db")
         }
 
         val gameId = GameTable.insertAndGetId {
@@ -59,21 +54,17 @@ class GameDaoImpl : GameDao{
 
         }.value
 
-        scoreBookDao.insertScoreBookPlayer(gameId, postGame.authorId, postGame.courseId)
-
         gameId
     }
 
     override fun addGamePlayer(gameId: Int, playerId: Int, courseId: Int): GameDetails? {
-        val inserted = scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
-        if (!inserted) throw GBException("Couldn't add player to game", true)
-
+        scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
         return getGameById(gameId)
     }
 
     override fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails? {
         val deleted = scoreBookDao.deleteScoreBookPlayer(gameId, playerId)
-        if (!deleted) throw GBException("Couldn't deleted player from scorebook")
+        if (!deleted) throw GBException("This player wasn't in the scorebook")
 
         return getGameById(gameId)
     }
@@ -88,7 +79,7 @@ class GameDaoImpl : GameDao{
             it[courseId] = putGame.courseId
         }
 
-        if (updatedGame == 0) return@transaction null
+        if (updatedGame == 0) throw GBException("Given gameId doesn't exist in db")
 
         getGameById(putGame.id)
     }
@@ -103,16 +94,14 @@ class GameDaoImpl : GameDao{
             GameTable.tournamentId eq tournamentId
         }.mapNotNull {
             val scoreBook = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)
-            scoreBook ?: return@mapNotNull null
-
-            val players = scoreBook.keys.toList()
+            val players = scoreBook?.keys?.toList()
             GameDbMapper.mapFromEntity(it, players)
         }
     }
 
     interface ScoreBookDao {
         fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>?
-        fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int) : Boolean
+        fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int) 
         fun deleteScoreBookPlayer(gameId: Int, playerId: Int): Boolean
         fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>>?
         fun deleteScoreBook(gameId: Int): Boolean
@@ -136,12 +125,12 @@ class GameDaoImpl : GameDao{
             }
         }
 
-        override fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int): Boolean = transaction {
-            val numberOfHole = courseDao.getCourseById(courseId)?.numberOfHOles ?: return@transaction false
-            playerDao.getPlayerById(authorId) ?: return@transaction false
+        override fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int): Unit = transaction {
+            val numberOfHole = courseDao.getCourseById(courseId)?.numberOfHOles ?: throw GBException("Couldn't find this course in db")
+            playerDao.getPlayerById(authorId) ?: throw GBException("Couldn't find this player in db")
 
             val query = ScoreBookTable.select { ScoreBookTable.gameId eq gameId and (ScoreBookTable.playerId eq authorId) }
-            if (!query.empty()) return@transaction false //throw exception would ve better...
+            if (!query.empty()) throw GBException("Player is already in this scorebook")
 
             ScoreBookTable.insert {
                 it[playerId] = authorId
@@ -169,7 +158,6 @@ class GameDaoImpl : GameDao{
                 it[hole17] = initValue
                 it[hole18] = initValue
             }
-            true
         }
 
         override fun deleteScoreBookPlayer(gameId: Int, playerId: Int) = transaction {
@@ -177,8 +165,10 @@ class GameDaoImpl : GameDao{
         }
 
         override fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>>? = transaction {
+
+            getGameById(scoreBook.gameId) ?: throw GBException("Given gameId wasn't found in db")
             scoreBook.scoreBook.forEach { (playerId, scoreBookEntry) ->
-                playerDao.getPlayerById(playerId) ?: return@transaction null
+                playerDao.getPlayerById(playerId) ?: throw GBException("Given playerId wasn't found in db")
 
                 ScoreBookTable.update( {ScoreBookTable.gameId eq scoreBook.gameId and (ScoreBookTable.playerId eq playerId) } ) {
                     it[hole1] = scoreBookEntry[0]!!

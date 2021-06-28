@@ -6,5 +6,5 @@ data class Game(
     val id : Int,
     val state: GBState,
     val currentHole: Int,
-    val players: List<String>
+    val players: List<String>?
 )

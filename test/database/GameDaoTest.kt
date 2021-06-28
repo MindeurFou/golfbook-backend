@@ -47,10 +47,10 @@ class GameDaoTest : BaseDaoTest(){
             val courseId = courseDao.insertCourse(validCourseBody)
             val playerId = playerDao.insertPlayer(validPostPlayerBody)
 
-            val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId)
+            val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
-            val game = gameDao.getGameById(gameId!!)
+            val game = gameDao.getGameById(gameId)
 
             assertThat(game).isEqualTo(
                 GameDetails(
@@ -59,13 +59,14 @@ class GameDaoTest : BaseDaoTest(){
                     validCourseBody.name,
                     courseId,
                     1,
-                    DbInstrumentation.initialScoreBook(validPostPlayerBody.username)
+                    null
                 )
             )
 
-            val otherValidPostGameBody = PostGameBody(courseId = courseId, authorId = playerId, tournamentId = 1)
-            val otherGameId = gameDao.insertGame(otherValidPostGameBody)
-            assertEquals(null, otherGameId)
+            assertThrows(GBException::class.java) {
+                val otherValidPostGameBody = PostGameBody(courseId = courseId, tournamentId = 1)
+                gameDao.insertGame(otherValidPostGameBody)
+            }
         }
     }
 
@@ -85,20 +86,22 @@ class GameDaoTest : BaseDaoTest(){
         transaction {
             createSchema()
 
-            var gameDetails = gameDao.updateGame(PutGameBody(1, GBState.WAITING, 1))
-            assertEquals(gameDetails, null)
+            assertThrows(GBException::class.java) {
+                gameDao.updateGame(PutGameBody(1, GBState.WAITING, 1))
+            }
 
             val validPostCourse = DbInstrumentation.validPostCourseBody()
             val courseId = courseDao.insertCourse(validPostCourse)
-            gameDetails = gameDao.updateGame(PutGameBody(1, GBState.WAITING, courseId))
-            assertEquals(gameDetails, null)
+            assertThrows(GBException::class.java) {
+                gameDao.updateGame(PutGameBody(1, GBState.WAITING, courseId))
+            }
 
             val validPostPlayerBody = DbInstrumentation.validPostPlayerBody()
             val playerId = playerDao.insertPlayer(validPostPlayerBody)
-            val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId)
+            val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
-            gameDetails = gameDao.updateGame(PutGameBody(gameId!!, GBState.PENDING, courseId))
+            val gameDetails = gameDao.updateGame(PutGameBody(gameId, GBState.PENDING, courseId))
             assertThat(gameDetails).isEqualTo(
                 GameDetails(
                     gameId,
@@ -106,7 +109,7 @@ class GameDaoTest : BaseDaoTest(){
                     validPostCourse.name,
                     courseId,
                     1,
-                    DbInstrumentation.initialScoreBook(validPostPlayerBody.username)
+                    null
                 )
             )
         }
@@ -127,10 +130,10 @@ class GameDaoTest : BaseDaoTest(){
             val playerId = playerDao.insertPlayer(validPostPlayerBody)
             val otherPlayerId = playerDao.insertPlayer(otherValidPostPlayer)
 
-            val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId)
+            val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
-            result = gameDao.deleteGame(gameId!!)
+            result = gameDao.deleteGame(gameId)
             assertEquals(result, true)
 
             val course = courseDao.getCourseById(courseId)
@@ -186,20 +189,24 @@ class GameDaoTest : BaseDaoTest(){
 
             val tournamentId = TournamentDaoImpl().insertTournament(PostTournamentBody("Tournoi de ouf"))
 
-            val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId, tournamentId = tournamentId)
-            val otherValidPostGameBody = PostGameBody(courseId = courseId, authorId = playerId, tournamentId = 2)
+            val validPostGameBody = PostGameBody(courseId = courseId, tournamentId = tournamentId)
+            val unValidPostGameBody = PostGameBody(courseId = courseId, tournamentId = 2)
 
             val gameId = gameDao.insertGame(validPostGameBody)
-            gameDao.insertGame(otherValidPostGameBody)
+
+            assertThrows(GBException::class.java) {
+                gameDao.insertGame(unValidPostGameBody)
+            }
+
 
             val games = gameDao.getGamesByTournamentId(tournamentId)
             assertEquals(1, games.size)
             assertThat(games[0]).isEqualTo(
                 Game(
-                    gameId!!,
+                    gameId,
                     GBState.WAITING,
                     1,
-                    listOf(validPostPlayerBody.username)
+                    null
                 )
             )
             SchemaUtils.drop(TournamentTable)
@@ -218,17 +225,19 @@ class GameDaoTest : BaseDaoTest(){
             val playerId = playerDao.insertPlayer(validPostPlayerBody)
             val otherPlayerId = playerDao.insertPlayer(otherValidPostPlayer)
 
-            val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId)
+            val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
             assertThrows(GBException::class.java) {
-                gameDao.addGamePlayer(gameId!!, 4, courseId)
+                gameDao.addGamePlayer(gameId, 4, courseId)
             }
             assertThrows(GBException::class.java) {
-                gameDao.addGamePlayer(gameId!!, otherPlayerId, 5)
+                gameDao.addGamePlayer(gameId, otherPlayerId, 5)
             }
 
-            val gameDetails = gameDao.addGamePlayer(gameId!!, otherPlayerId, courseId)
+            gameDao.addGamePlayer(gameId, playerId, courseId)
+
+            val gameDetails = gameDao.addGamePlayer(gameId, otherPlayerId, courseId)
 
             val scoreBook = DbInstrumentation.initialScoreBook(validPostPlayerBody.username) + DbInstrumentation.initialScoreBook(otherValidPostPlayer.username)
 
@@ -255,24 +264,26 @@ class GameDaoTest : BaseDaoTest(){
             val courseId = courseDao.insertCourse(validCourseBody)
             val playerId = playerDao.insertPlayer(validPostPlayerBody)
 
-            val validPostGameBody = PostGameBody(courseId = courseId, authorId = playerId)
+            val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
             assertThrows(GBException::class.java) {
-                gameDao.deleteGamePlayer(gameId!!, 3)
+                gameDao.deleteGamePlayer(gameId, 3)
             }
 
-            val gameDetails = gameDao.deleteGamePlayer(gameId!!, playerId)
-            assertThat(gameDetails).isEqualTo( null)
-//                GameDetails(
-//                    gameId,
-//                    GBState.WAITING,
-//                    validCourseBody.name,
-//                    courseId,
-//                    1,
-//                    DbInstrumentation.initialScoreBook(validPostPlayerBody.username)
-//                )
+            gameDao.addGamePlayer(gameId, playerId, courseId)
 
+            val gameDetails = gameDao.deleteGamePlayer(gameId, playerId)
+            assertThat(gameDetails).isEqualTo( 
+               GameDetails(
+                   gameId,
+                   GBState.WAITING,
+                   validCourseBody.name,
+                   courseId,
+                   1,
+                   null
+               )
+            )
         }
     }
 

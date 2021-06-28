@@ -49,9 +49,7 @@ class TournamentDaoImpl : TournamentDao {
         leaderBoardDao.updateLeaderBoard(putLeaderBoard)
 
     override fun addTournamentPlayer(tournamentId: Int, playerId: Int): Map<String, Int>? {
-        val inserted = leaderBoardDao.insertLeaderBoardPlayer(tournamentId, playerId)
-        if (!inserted) throw GBException("Couldn't insert player into leaderboard")
-
+        leaderBoardDao.insertLeaderBoardPlayer(tournamentId, playerId)
         return leaderBoardDao.getLeaderBoardByTournamentId(tournamentId)
     }
 
@@ -82,13 +80,13 @@ class TournamentDaoImpl : TournamentDao {
 
     interface LeaderBoardDao {
         fun getLeaderBoardByTournamentId(tournamentId: Int): Map<String, Int>?
-        fun insertLeaderBoardPlayer(tournamentId: Int, authorId: Int): Boolean
+        fun insertLeaderBoardPlayer(tournamentId: Int, authorId: Int)
         fun deleteLeaderBoardPlayer(tournamentId: Int, playerId: Int): Boolean
         fun updateLeaderBoard(putLeaderBoard: PutLeaderBoardBody): Map<String, Int>?
         fun deleteLeaderBoard(tournamentId: Int): Boolean
     }
 
-    private class LeaderBoardDaoImpl : LeaderBoardDao {
+    private inner class LeaderBoardDaoImpl : LeaderBoardDao {
 
         private val playerDao: PlayerDao = PlayerDaoImpl()
 
@@ -103,18 +101,18 @@ class TournamentDaoImpl : TournamentDao {
             }
         }
 
-        override fun insertLeaderBoardPlayer(tournamentId: Int, authorId: Int): Boolean = transaction {
-            playerDao.getPlayerById(authorId) ?: return@transaction false
+        override fun insertLeaderBoardPlayer(tournamentId: Int, authorId: Int): Unit = transaction {
+            playerDao.getPlayerById(authorId) ?: throw GBException("Couldn't find player in db")
+            getTournamentById(tournamentId) ?: throw GBException("Couldn't find tournament in db")
 
             val query = LeaderBoardTable.select { LeaderBoardTable.tournamentId eq tournamentId and (LeaderBoardTable.playerId eq authorId) }
-            if (!query.empty()) return@transaction false
+            if (!query.empty()) throw GBException("Player already in leaderboard")
 
             LeaderBoardTable.insert {
                 it[playerId] = authorId
                 it[LeaderBoardTable.tournamentId] = tournamentId
                 it[score] = 0
             }
-            true
         }
 
         override fun deleteLeaderBoardPlayer(tournamentId: Int, playerId : Int): Boolean = transaction {

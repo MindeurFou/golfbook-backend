@@ -5,7 +5,7 @@ import com.mindeurfou.model.game.outgoing.GameDetails
 import org.jetbrains.exposed.sql.ResultRow
 
 object GameDetailsDbMapper {
-    fun mapFromEntity(resultRow: ResultRow, scoreBook : Map<String, List<Int?>>) = GameDetails(
+    fun mapFromEntity(resultRow: ResultRow, scoreBook : Map<String, List<Int?>>?) = GameDetails(
         id = resultRow[GameTable.id].value,
         state = resultRow[GameTable.state],
         courseName = resultRow[CourseTable.name],
