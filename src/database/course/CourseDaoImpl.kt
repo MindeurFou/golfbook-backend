@@ -1,5 +1,6 @@
 package com.mindeurfou.database.course
 
+import com.mindeurfou.utils.GBException
 import com.mindeurfou.database.hole.HoleDbMapper
 import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.model.course.outgoing.Course
@@ -55,7 +56,7 @@ class CourseDaoImpl : CourseDao {
                 it[gamesPlayed] = putCourse.gamesPlayed
             }
 
-            if (updatedColumns == 0) return@transaction null
+            if (updatedColumns == 0) throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
 
             putCourse.holes.forEach { hole ->
                 HoleTable.update( {HoleTable.id eq hole.id } ) {
@@ -71,7 +72,7 @@ class CourseDaoImpl : CourseDao {
     override fun deleteCourse(courseId: Int) = transaction {
         val columnDeleted = CourseTable.deleteWhere { CourseTable.id eq courseId }
 
-        if (columnDeleted == 0) return@transaction false
+        if (columnDeleted == 0) throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
 
         HoleTable.deleteWhere { HoleTable.courseId eq courseId }
         true

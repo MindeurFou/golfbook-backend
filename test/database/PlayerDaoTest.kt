@@ -48,8 +48,8 @@ class PlayerDaoTest : BaseDaoTest() {
     fun `update player`() {
         transaction {
             createSchema()
-            val validPutPlayer = DbInstrumentation.validPutPlayerBody()
-            var updatedPlayer = playerDao.updatePlayer(4, validPutPlayer)
+            val unValidPutPlayer(4, "luffy91230", 34234253)
+            var updatedPlayer = playerDao.updatePlayer(4, unValidPutPlayer)
 
             assertEquals(updatedPlayer, null)
 

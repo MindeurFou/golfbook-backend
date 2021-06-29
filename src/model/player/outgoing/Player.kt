@@ -1,4 +1,4 @@
-package com.mindeurfou.model.player
+package com.mindeurfou.model.player.outgoing
 
 data class Player(
     val id: Int,

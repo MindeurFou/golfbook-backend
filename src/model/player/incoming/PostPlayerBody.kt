@@ -1,4 +1,4 @@
-package com.mindeurfou.model.player
+package com.mindeurfou.model.player.incoming
 
 data class PostPlayerBody(
     val name: String,

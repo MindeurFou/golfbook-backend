@@ -1,8 +1,9 @@
 package com.mindeurfou.database.player
 
-import com.mindeurfou.model.player.Player
-import com.mindeurfou.model.player.PostPlayerBody
-import com.mindeurfou.model.player.PutPlayerBody
+import com.mindeurfou.utils.GBException
+import com.mindeurfou.model.player.outgoing.Player
+import com.mindeurfou.model.player.incoming.PostPlayerBody
+import com.mindeurfou.model.player.incoming.PutPlayerBody
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -25,14 +26,15 @@ class PlayerDaoImpl : PlayerDao {
         }.value
     }
 
-    override fun updatePlayer(playerId: Int, putPlayer: PutPlayerBody): Player? {
+    override fun updatePlayer(putPlayer: PutPlayerBody): Player? {
         transaction {
-            PlayerTable.update( {PlayerTable.id eq playerId} ) {
+            val updatedColumns = PlayerTable.update( {PlayerTable.id eq putPlayer.id} ) {
                 it[username] = putPlayer.username
                 it[drawableResourceId] = putPlayer.drawableResourceId
             }
+            if (updatedColumns == 0) throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
         }
-        return getPlayerById(playerId)
+        return getPlayerById(putPlayer.id)
     }
 
     override fun deletePlayer(playerId: Int) = transaction {

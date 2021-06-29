@@ -102,8 +102,8 @@ class TournamentDaoImpl : TournamentDao {
         }
 
         override fun insertLeaderBoardPlayer(tournamentId: Int, authorId: Int): Unit = transaction {
-            playerDao.getPlayerById(authorId) ?: throw GBException("Couldn't find player in db")
-            getTournamentById(tournamentId) ?: throw GBException("Couldn't find tournament in db")
+            playerDao.getPlayerById(authorId) ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
+            getTournamentById(tournamentId) ?: throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
 
             val query = LeaderBoardTable.select { LeaderBoardTable.tournamentId eq tournamentId and (LeaderBoardTable.playerId eq authorId) }
             if (!query.empty()) throw GBException("Player already in leaderboard")
@@ -121,12 +121,12 @@ class TournamentDaoImpl : TournamentDao {
 
         override fun updateLeaderBoard(putLeaderBoard: PutLeaderBoardBody): Map<String, Int>? = transaction {
             putLeaderBoard.leaderBoard.forEach { (name, score) ->
-                val playerId = playerDao.getPlayerByUsername(name)?.id ?: throw GBException("Player not found")
+                val playerId = playerDao.getPlayerByUsername(name)?.id ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
 
                 val updatedColumns = LeaderBoardTable.update ({ LeaderBoardTable.playerId eq playerId and (LeaderBoardTable.tournamentId eq putLeaderBoard.tournamentId) } ) {
                     it[LeaderBoardTable.score] = score
                 }
-                if (updatedColumns == 0) throw GBException("LeaderBoardTable entity hasn't been found")
+                if (updatedColumns == 0) throw GBException(GBException.LEADERBOARD_NOT_FIND_MESSAGE)
             }
             getLeaderBoardByTournamentId(putLeaderBoard.tournamentId)
         }
