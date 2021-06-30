@@ -11,6 +11,7 @@ import com.mindeurfou.model.game.incoming.PutGameBody
 class GameService : ServiceNotification() {
 
 	private val gameDao: GameDao = GameDaoImpl()
+
 	// CRUD classic methods
 
 	fun getGame(gameId: Int): GameDetails {
