@@ -3,10 +3,13 @@ package com.mindeurfou.database
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
 import com.mindeurfou.database.player.PlayerTable
-import com.mindeurfou.model.player.Player
+import com.mindeurfou.model.player.incoming.PutPlayerBody
+import com.mindeurfou.model.player.outgoing.Player
+import com.mindeurfou.utils.GBException
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertEquals
@@ -48,14 +51,16 @@ class PlayerDaoTest : BaseDaoTest() {
     fun `update player`() {
         transaction {
             createSchema()
-            val unValidPutPlayer(4, "luffy91230", 34234253)
-            var updatedPlayer = playerDao.updatePlayer(4, unValidPutPlayer)
+            val unValidPutPlayer = PutPlayerBody(4, "luffy91230", 34234253)
+            assertThrows(GBException::class.java) {
+                playerDao.updatePlayer(unValidPutPlayer)
+            }
 
-            assertEquals(updatedPlayer, null)
 
             val validPostPlayer = DbInstrumentation.validPostPlayerBody()
             val playerId = playerDao.insertPlayer(validPostPlayer)
-            updatedPlayer = playerDao.updatePlayer(playerId, validPutPlayer)
+            val validPutPlayer = PutPlayerBody(playerId, "luffy91230", 3292323)
+            val updatedPlayer = playerDao.updatePlayer(validPutPlayer)
 
             assertThat(updatedPlayer).isEqualTo(
                 Player(

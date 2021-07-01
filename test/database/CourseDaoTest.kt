@@ -7,9 +7,11 @@ import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.model.course.outgoing.Course
 import com.mindeurfou.model.course.outgoing.CourseDetails
+import com.mindeurfou.utils.GBException
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
@@ -46,8 +48,8 @@ class CourseDaoTest : BaseDaoTest(){
     fun `get non existing course`() {
         transaction {
             createSchema()
-            val courseDetails = courseDao.getCourseById(1)
-            assertEquals(courseDetails, null)
+            val course = courseDao.getCourseById(1)
+            assertEquals(null, course)
         }
     }
 
@@ -57,21 +59,22 @@ class CourseDaoTest : BaseDaoTest(){
             createSchema()
             val validPutCourseBody = DbInstrumentation.validPostCourseBody()
             val notPresentId = 1
-            var updatedCourseDetails = courseDao.updateCourse(
-                PutCourseBody(
-                    notPresentId,
-                    validPutCourseBody.name,
-                    validPutCourseBody.numberOfHOles,
-                    validPutCourseBody.par,
-                    10,
-                    DbInstrumentation.listOfHoles()
+            assertThrows(GBException::class.java) {
+                courseDao.updateCourse(
+                    PutCourseBody(
+                        notPresentId,
+                        validPutCourseBody.name,
+                        validPutCourseBody.numberOfHOles,
+                        validPutCourseBody.par,
+                        10,
+                        DbInstrumentation.listOfHoles()
+                    )
                 )
-            )
-            assertEquals(updatedCourseDetails, null)
+            }
 
             val courseId = courseDao.insertCourse(validPutCourseBody)
 
-            updatedCourseDetails = courseDao.updateCourse(
+            val updatedCourseDetails = courseDao.updateCourse(
                 PutCourseBody(
                     courseId,
                     validPutCourseBody.name,
@@ -101,7 +104,6 @@ class CourseDaoTest : BaseDaoTest(){
         transaction {
             createSchema()
             var result = courseDao.deleteCourse(1)
-            assertEquals(result, false)
 
             val validPostCourse = DbInstrumentation.validPostCourseBody()
             val courseId = courseDao.insertCourse(validPostCourse)

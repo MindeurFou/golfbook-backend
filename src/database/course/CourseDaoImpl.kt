@@ -72,7 +72,7 @@ class CourseDaoImpl : CourseDao {
     override fun deleteCourse(courseId: Int) = transaction {
         val columnDeleted = CourseTable.deleteWhere { CourseTable.id eq courseId }
 
-        if (columnDeleted == 0) throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
+        if (columnDeleted == 0) return@transaction false
 
         HoleTable.deleteWhere { HoleTable.courseId eq courseId }
         true

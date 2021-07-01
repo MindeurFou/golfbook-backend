@@ -19,7 +19,7 @@ import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.outgoing.GameDetails
-import com.mindeurfou.model.player.Player
+import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.utils.GBException
 import org.assertj.core.api.Assertions.assertThat
