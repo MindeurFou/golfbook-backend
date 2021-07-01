@@ -9,7 +9,7 @@ import com.mindeurfou.database.tournament.TournamentTable
 import com.mindeurfou.database.tournament.leaderboard.LeaderBoardTable
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.tournament.PutLeaderBoardBody
-import com.mindeurfou.model.tournament.PutTournamentBody
+import com.mindeurfou.model.tournament.incoming.PutTournamentBody
 import com.mindeurfou.model.tournament.outgoing.TournamentDetails
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.utils.GBException
@@ -52,14 +52,15 @@ class TournamentDaoTest : BaseDaoTest(){
     fun updateTournament() {
         transaction {
             createSchema()
-            var tournamentDetails = tournamentDao.updateTournament(
-                PutTournamentBody(
-                    1,
-                    "testName",
-                    GBState.WAITING
+            assertThrows(GBException::class.java) {
+                tournamentDao.updateTournament(
+                    PutTournamentBody(
+                        1,
+                        "testName",
+                        GBState.WAITING
+                    )
                 )
-            )
-            assertEquals(null, tournamentDetails)
+            }
 
             val validPostTournamentBody = PostTournamentBody("tournoi du sale")
             val tournamentId = tournamentDao.insertTournament(validPostTournamentBody)
@@ -69,7 +70,7 @@ class TournamentDaoTest : BaseDaoTest(){
                 "testName",
                 GBState.WAITING
             )
-            tournamentDetails = tournamentDao.updateTournament(validPutTournamentBody)
+            val tournamentDetails = tournamentDao.updateTournament(validPutTournamentBody)
             assertThat(tournamentDetails).isEqualTo(
                 TournamentDetails(
                     tournamentId,

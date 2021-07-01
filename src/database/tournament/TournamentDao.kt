@@ -2,14 +2,14 @@ package com.mindeurfou.database.tournament
 
 import com.mindeurfou.model.tournament.PutLeaderBoardBody
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
-import com.mindeurfou.model.tournament.PutTournamentBody
+import com.mindeurfou.model.tournament.incoming.PutTournamentBody
 import com.mindeurfou.model.tournament.outgoing.Tournament
 import com.mindeurfou.model.tournament.outgoing.TournamentDetails
 
 interface TournamentDao {
     fun getTournamentById(tournamentId: Int): TournamentDetails?
     fun insertTournament(postTournament: PostTournamentBody): Int
-    fun updateTournament(putTournament: PutTournamentBody): TournamentDetails?
+    fun updateTournament(putTournament: PutTournamentBody): TournamentDetails
     fun deleteTournament(tournamentId: Int): Boolean
     fun getTournaments(filters: Map<String, String?>?, limit : Int? = null, offset: Int? = null): List<Tournament>?
 

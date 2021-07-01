@@ -14,6 +14,7 @@ class GBException(
         const val LEADERBOARD_NOT_FIND_MESSAGE = "Leaderboard hasn't been found"
 
         const val INVALID_OPERATION_MESSAGE    = "Invalid operation"
+        const val TOURNAMENT_DONE_MESSAGE      = "This tournament is finished"
     }
 }
 

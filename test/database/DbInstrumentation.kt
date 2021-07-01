@@ -1,12 +1,9 @@
 package com.mindeurfou.database
 
 import com.mindeurfou.model.course.incoming.PostCourseBody
-import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.hole.incoming.PostHoleBody
 import com.mindeurfou.model.hole.outgoing.Hole
 import com.mindeurfou.model.player.incoming.PostPlayerBody
-import com.mindeurfou.model.player.incoming.PutPlayerBody
-import com.mindeurfou.model.tournament.PutTournamentBody
 
 object DbInstrumentation {
 

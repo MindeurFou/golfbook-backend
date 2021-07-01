@@ -8,7 +8,7 @@ import com.mindeurfou.database.tournament.leaderboard.LeaderBoardTable
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.tournament.PutLeaderBoardBody
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
-import com.mindeurfou.model.tournament.PutTournamentBody
+import com.mindeurfou.model.tournament.incoming.PutTournamentBody
 import com.mindeurfou.model.tournament.outgoing.Tournament
 import com.mindeurfou.model.tournament.outgoing.TournamentDetails
 import com.mindeurfou.utils.GBException
@@ -37,12 +37,14 @@ class TournamentDaoImpl : TournamentDao {
         }.value
     }
 
-    override fun updateTournament(putTournament: PutTournamentBody): TournamentDetails? = transaction {
-        TournamentTable.update( {TournamentTable.id eq putTournament.id}) {
+    override fun updateTournament(putTournament: PutTournamentBody): TournamentDetails = transaction {
+        val updatedColumns = TournamentTable.update( {TournamentTable.id eq putTournament.id}) {
             putTournament.name?.let { newName -> it[name] = newName  }
             putTournament.state?.let { newState -> it[state] = newState }
         }
-        getTournamentById(putTournament.id)
+
+        if (updatedColumns == 0) throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
+        getTournamentById(putTournament.id)!!
     }
 
     override fun updateTournamentLeaderBoard(putLeaderBoard: PutLeaderBoardBody): Map<String, Int>? =

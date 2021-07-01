@@ -104,6 +104,7 @@ class CourseDaoTest : BaseDaoTest(){
         transaction {
             createSchema()
             var result = courseDao.deleteCourse(1)
+            assertEquals(false, result)
 
             val validPostCourse = DbInstrumentation.validPostCourseBody()
             val courseId = courseDao.insertCourse(validPostCourse)

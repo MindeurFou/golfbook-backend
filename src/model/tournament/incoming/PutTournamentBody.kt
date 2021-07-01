@@ -1,4 +1,4 @@
-package com.mindeurfou.model.tournament
+package com.mindeurfou.model.tournament.incoming
 
 import com.mindeurfou.model.GBState
 

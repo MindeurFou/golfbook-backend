@@ -3,6 +3,8 @@ package com.mindeurfou.service
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.database.game.GameDao
 import com.mindeurfou.database.game.GameDaoImpl
+import com.mindeurfou.database.tournament.TournamentDao
+import com.mindeurfou.database.tournament.TournamentDaoImpl
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.outgoing.GameDetails
 import com.mindeurfou.model.game.incoming.PostGameBody
@@ -11,6 +13,7 @@ import com.mindeurfou.model.game.incoming.PutGameBody
 class GameService : ServiceNotification() {
 
 	private val gameDao: GameDao = GameDaoImpl()
+	private val tournamentDao: TournamentDao = TournamentDaoImpl()
 
 	// CRUD classic methods
 
@@ -19,6 +22,12 @@ class GameService : ServiceNotification() {
 	}
 
 	fun addNewGame(postGame: PostGameBody) : GameDetails {
+
+		postGame.tournamentId?.let {
+			val tournamentDetails = tournamentDao.getTournamentById(it) ?: throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
+            if (tournamentDetails.state == GBState.DONE) throw GBException(GBException.TOURNAMENT_DONE_MESSAGE)
+		}
+
 		val gameId = gameDao.insertGame(postGame)
 		return gameDao.getGameById(gameId)!!
 	}
