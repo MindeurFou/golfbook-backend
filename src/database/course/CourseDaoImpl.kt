@@ -47,11 +47,11 @@ class CourseDaoImpl : CourseDao {
         }
     }
 
-    override fun updateCourse(putCourse: PutCourseBody): CourseDetails? {
+    override fun updateCourse(putCourse: PutCourseBody): CourseDetails {
         transaction {
             val updatedColumns = CourseTable.update({CourseTable.id eq putCourse.id}) {
                 it[name] = putCourse.name
-                it[numberOfHoles] = putCourse.numberOfHOles
+                it[numberOfHoles] = putCourse.numberOfHoles
                 it[par] = putCourse.par
                 it[gamesPlayed] = putCourse.gamesPlayed
             }
@@ -66,7 +66,7 @@ class CourseDaoImpl : CourseDao {
             }
 
         }
-        return getCourseById(putCourse.id)
+        return getCourseById(putCourse.id)!!
     }
 
     override fun deleteCourse(courseId: Int) = transaction {
