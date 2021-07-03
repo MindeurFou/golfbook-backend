@@ -1,7 +1,7 @@
 package com.mindeurfou.utils
 
 class GBException(
-    message: String,
+    override val message: String,
     throwToUser: Boolean = true
 ) : Exception(message) {
 

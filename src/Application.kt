@@ -34,6 +34,7 @@ fun Application.module(testing: Boolean = false) {
     dbProvider.init()
 
     install(Routing) {
+        PlayerRouting()
     }
 
 }

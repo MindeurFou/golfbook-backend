@@ -7,7 +7,7 @@ import com.mindeurfou.model.player.incoming.PutPlayerBody
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
 
-object PlayerService {
+class PlayerService {
 
 	private val playerDao : PlayerDao = PlayerDaoImpl()
 
