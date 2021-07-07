@@ -9,7 +9,7 @@ object LeaderBoardTable : Table() {
     val score = integer("score").default(0)
     val playerId = reference("playerId", PlayerTable)
     val tournamentId = reference("tournamentId", TournamentTable)
-    override val primaryKey = PrimaryKey(playerId, tournamentId, name = "id")
+    override val primaryKey = PrimaryKey(playerId, tournamentId, name = "leaderBoardId")
 }
 
 object LeaderBoardDbMapper {

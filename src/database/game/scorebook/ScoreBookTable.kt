@@ -27,7 +27,7 @@ object ScoreBookTable : Table(){
 
     val gameId = reference("gameId", GameTable)
     val playerId = reference("playerId", PlayerTable)
-    override val primaryKey = PrimaryKey(gameId, playerId, name = "id")
+    override val primaryKey = PrimaryKey(gameId, playerId, name = "scoreBookId")
 }
 
 object ScoreBookDbMapper {
