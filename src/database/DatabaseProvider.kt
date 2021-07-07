@@ -1,10 +1,10 @@
-package com.mindeurfou.database.player
+package com.mindeurfou.database
 
-import com.mindeurfou.database.PlayerGameAssociation
 import com.mindeurfou.database.course.CourseTable
 import com.mindeurfou.database.game.GameTable
 import com.mindeurfou.database.game.ScoreBookTable
 import com.mindeurfou.database.hole.HoleTable
+import com.mindeurfou.database.player.PlayerTable
 import com.mindeurfou.database.tournament.TournamentTable
 import com.mindeurfou.database.tournament.leaderboard.LeaderBoardTable
 import com.zaxxer.hikari.HikariConfig

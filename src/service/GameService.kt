@@ -59,7 +59,7 @@ class GameService : ServiceNotification() {
 
 	fun deleteGame(gameId: Int): Boolean = gameDao.deleteGame(gameId)
 
-	fun getGameServiceByTournamentId(tournamentId: Int, limit : Int = 20, offset : Int = 0) =
+	fun getGameByTournamentId(tournamentId: Int, limit : Int = 20, offset : Int = 0) =
 		gameDao.getGamesByTournamentId(tournamentId, limit, offset)
 
 

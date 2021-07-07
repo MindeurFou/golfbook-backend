@@ -1,15 +1,12 @@
 package com.mindeurfou
 
-import com.mindeurfou.database.player.DatabaseProvider
-import com.mindeurfou.database.player.DatabaseProviderContract
+import com.mindeurfou.database.DatabaseProvider
+import com.mindeurfou.database.DatabaseProviderContract
 import com.mindeurfou.routes.PlayerRouting
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
-import io.ktor.response.*
-import io.ktor.request.*
 import io.ktor.routing.*
-import io.ktor.http.*
 import org.koin.dsl.module
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.inject
