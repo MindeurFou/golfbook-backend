@@ -9,8 +9,11 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import org.koin.ktor.ext.inject
 
 fun Route.courseRouting() {
+
+    val courseService: CourseService by inject()
 
     route("/course") {
 
@@ -19,7 +22,7 @@ fun Route.courseRouting() {
             get {
                 val courseId = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
                 try {
-                    val courseDetails = CourseService.getCourse(courseId)
+                    val courseDetails = courseService.getCourse(courseId)
                     call.respond(courseDetails)
                 } catch (gBException : GBException) {
                     call.respondText(gBException.message, status = HttpStatusCode.NotFound)
@@ -29,7 +32,7 @@ fun Route.courseRouting() {
             put {
                 val putCourseBody = call.receive<PutCourseBody>()
                 try {
-                    val updatedCourse = CourseService.updateCourse(putCourseBody)
+                    val updatedCourse = courseService.updateCourse(putCourseBody)
                     call.respond(updatedCourse)
                 } catch (gBException: GBException) {
                     call.respondText(gBException.message, status = HttpStatusCode.NotFound)
@@ -41,7 +44,7 @@ fun Route.courseRouting() {
         post {
             val postCourseBody = call.receive<PostCourseBody>()
             try {
-                val courseDetails = CourseService.addNewCourse(postCourseBody)
+                val courseDetails = courseService.addNewCourse(postCourseBody)
                 call.respond(courseDetails)
             } catch (gBException : GBException) {
                 call.respondText(gBException.message, status = HttpStatusCode.Conflict)
@@ -49,7 +52,7 @@ fun Route.courseRouting() {
         }
 
         get {
-            CourseService.getCourses()?.let {
+            courseService.getCourses()?.let {
                 call.respond(it)
             } ?: return@get call.respond(HttpStatusCode.NoContent)
         }
