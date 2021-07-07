@@ -2,7 +2,6 @@ package com.mindeurfou.utils
 
 class GBException(
     override val message: String,
-    throwToUser: Boolean = true
 ) : Exception(message) {
 
     companion object {

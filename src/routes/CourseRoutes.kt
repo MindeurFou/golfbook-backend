@@ -49,7 +49,7 @@ fun Route.courseRouting() {
         }
 
         get {
-            val courses = CourseService.getCourses()?.let {
+            CourseService.getCourses()?.let {
                 call.respond(it)
             } ?: return@get call.respond(HttpStatusCode.NoContent)
         }

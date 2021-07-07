@@ -2,6 +2,7 @@
 
 This is the backend for my full stack application idea about golf score keeping and sharing. It's composed of a RESTFUL API to interact with server and a Websocket to provide automatic update.
 I use Docker to deploy to the server.
+My work is mainly influenced by [KtorEasy](https://github.com/mathias21/KtorEasy.git) project made by mathias21.
 
 ## Golfbook API
 

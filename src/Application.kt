@@ -2,6 +2,7 @@ package com.mindeurfou
 
 import com.mindeurfou.database.DatabaseProvider
 import com.mindeurfou.database.DatabaseProviderContract
+import com.mindeurfou.routes.RoutesInjection
 import com.mindeurfou.routes.playerRouting
 import io.ktor.application.*
 import io.ktor.features.*
@@ -14,8 +15,7 @@ import org.koin.ktor.ext.inject
 fun main(args: Array<String>): Unit = io.ktor.server.jetty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
-@kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.module() {
 
     install(ContentNegotiation) {
         gson()
@@ -23,7 +23,8 @@ fun Application.module(testing: Boolean = false) {
 
     install(Koin) {
         modules(
-            module { single<DatabaseProviderContract> { DatabaseProvider }}
+            module { single<DatabaseProviderContract> { DatabaseProvider }},
+            RoutesInjection.koinRoutesModule
         )
     }
 

@@ -13,7 +13,7 @@ class PlayerService {
 
 	fun addNewPlayer(postPlayer: PostPlayerBody) : Player {
 		val playerByName = playerDao.getPlayerByUsername(postPlayer.username)  
-		playerByName?.let { throw GBException("This username is already taken", throwToUser = true) }
+		playerByName?.let { throw GBException("This username is already taken") }
 
 		val playerId = playerDao.insertPlayer(postPlayer)
 
@@ -21,11 +21,11 @@ class PlayerService {
 	}
 
 	fun getPlayer(playerId: Int): Player {
-		return playerDao.getPlayerById(playerId) ?: throw GBException("This player doesn't exist", throwToUser = true)
+		return playerDao.getPlayerById(playerId) ?: throw GBException("This player doesn't exist")
 	}
 
 	fun updatePlayer(putPlayer: PutPlayerBody): Player {
-		return playerDao.updatePlayer(putPlayer) ?: throw GBException("This player doesn't exist", throwToUser = true)
+		return playerDao.updatePlayer(putPlayer) ?: throw GBException("This player doesn't exist")
 	} 
 
 	fun deletePlayer(playerId: Int): Boolean = playerDao.deletePlayer(playerId)
