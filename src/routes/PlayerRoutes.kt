@@ -11,7 +11,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 
 
-fun Route.PlayerRouting() {
+fun Route.playerRouting() {
 
     val playerService = PlayerService()
 
@@ -20,6 +20,7 @@ fun Route.PlayerRouting() {
         route("{id}") {
 
             get {
+
                 val playerId = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
                 try {
                     val player = playerService.getPlayer(playerId)

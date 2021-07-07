@@ -2,7 +2,7 @@ package com.mindeurfou
 
 import com.mindeurfou.database.DatabaseProvider
 import com.mindeurfou.database.DatabaseProviderContract
-import com.mindeurfou.routes.PlayerRouting
+import com.mindeurfou.routes.playerRouting
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
@@ -31,7 +31,7 @@ fun Application.module(testing: Boolean = false) {
     dbProvider.init()
 
     install(Routing) {
-        PlayerRouting()
+        playerRouting()
     }
 
 }
