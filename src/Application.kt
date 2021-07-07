@@ -2,10 +2,7 @@ package com.mindeurfou
 
 import com.mindeurfou.database.DatabaseProvider
 import com.mindeurfou.database.DatabaseProviderContract
-import com.mindeurfou.routes.RoutesInjection
-import com.mindeurfou.routes.courseRouting
-import com.mindeurfou.routes.gameRouting
-import com.mindeurfou.routes.playerRouting
+import com.mindeurfou.routes.*
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
@@ -37,6 +34,7 @@ fun Application.module() {
         playerRouting()
         courseRouting()
         gameRouting()
+        tournamentRouting()
     }
 
 }
