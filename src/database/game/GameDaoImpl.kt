@@ -1,10 +1,12 @@
 package com.mindeurfou.database.game
 
+import com.mindeurfou.database.PlayerGameAssociation
 import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
 import com.mindeurfou.database.course.CourseTable
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
+import com.mindeurfou.database.player.PlayerDbMapper
 import com.mindeurfou.database.player.PlayerTable
 import com.mindeurfou.database.tournament.TournamentTable
 import com.mindeurfou.model.GBState
@@ -30,10 +32,16 @@ class GameDaoImpl : GameDao {
     override fun getGameById(gameId: Int): GameDetails? = transaction {
         val scoreBook = scoreBookDao.getScoreBookByGameId(gameId)
 
+        val players = (GameTable innerJoin PlayerGameAssociation innerJoin PlayerTable).select {
+            GameTable.id eq gameId
+        }.mapNotNull {
+            PlayerDbMapper.mapFromEntity(it)
+        }
+
         (GameTable innerJoin CourseTable).select {
             GameTable.id eq gameId
         }.mapNotNull {
-            GameDetailsDbMapper.mapFromEntity(it, scoreBook)
+            GameDetailsDbMapper.mapFromEntity(it, scoreBook, players)
         }.singleOrNull()
     }
 
@@ -60,12 +68,22 @@ class GameDaoImpl : GameDao {
 
     override fun addGamePlayer(gameId: Int, playerId: Int, courseId: Int): GameDetails? {
         scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
+
+        PlayerGameAssociation.insert {
+            it[PlayerGameAssociation.playerId] = playerId
+            it[PlayerGameAssociation.gameId] = gameId
+        }
+
         return getGameById(gameId)
     }
 
     override fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails? {
         val deleted = scoreBookDao.deleteScoreBookPlayer(gameId, playerId)
         if (!deleted) throw GBException(GBException.SCOREBOOK_NOT_FIND_MESSAGE)
+
+        PlayerGameAssociation.deleteWhere {
+            PlayerGameAssociation.gameId eq gameId and (PlayerGameAssociation.playerId eq playerId)
+        }
 
         return getGameById(gameId)
     }

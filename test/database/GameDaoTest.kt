@@ -59,6 +59,7 @@ class GameDaoTest : BaseDaoTest(){
                     validCourseBody.name,
                     courseId,
                     1,
+                    emptyList(),
                     null
                 )
             )
@@ -109,6 +110,7 @@ class GameDaoTest : BaseDaoTest(){
                     validPostCourse.name,
                     courseId,
                     1,
+                    emptyList(),
                     null
                 )
             )
@@ -225,6 +227,23 @@ class GameDaoTest : BaseDaoTest(){
             val playerId = playerDao.insertPlayer(validPostPlayerBody)
             val otherPlayerId = playerDao.insertPlayer(otherValidPostPlayer)
 
+            val players = listOf(
+                Player(
+                    playerId,
+                    validPostPlayerBody.name,
+                    validPostPlayerBody.lastName,
+                    validPostPlayerBody.username,
+                    validPostPlayerBody.drawableResourceId
+                ),
+                Player(
+                    otherPlayerId,
+                    otherValidPostPlayer.name,
+                    otherValidPostPlayer.lastName,
+                    otherValidPostPlayer.username,
+                    otherValidPostPlayer.drawableResourceId
+                )
+            )
+
             val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
@@ -248,6 +267,7 @@ class GameDaoTest : BaseDaoTest(){
                     validCourseBody.name,
                     courseId,
                     1,
+                    players,
                     scoreBook
                 )
             )
@@ -281,6 +301,7 @@ class GameDaoTest : BaseDaoTest(){
                    validCourseBody.name,
                    courseId,
                    1,
+                   emptyList(),
                    null
                )
             )
@@ -293,6 +314,7 @@ class GameDaoTest : BaseDaoTest(){
         SchemaUtils.drop(CourseTable)
         SchemaUtils.drop(HoleTable)
         SchemaUtils.drop(ScoreBookTable)
+        SchemaUtils.drop(PlayerGameAssociation)
     }
 
     override fun createSchema() {
@@ -300,5 +322,6 @@ class GameDaoTest : BaseDaoTest(){
         SchemaUtils.create(CourseTable)
         SchemaUtils.create(HoleTable)
         SchemaUtils.create(ScoreBookTable)
+        SchemaUtils.create(PlayerGameAssociation)
     }
 }
