@@ -62,8 +62,26 @@ class GameService : ServiceNotification() {
 	fun getGameByTournamentId(tournamentId: Int, limit : Int = 20, offset : Int = 0) =
 		gameDao.getGamesByTournamentId(tournamentId, limit, offset)
 
-
 	// in-game specific operations
 
+	fun addGamePlayer(gameId: Int, playerId: Int) {
+		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+        if (gameDetails.state != GBState.WAITING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
+		val playerInGame = gameDetails.players.any { it.id == playerId }
+		val gameIsFull = gameDetails.players.size >= 4
+
+		if (!playerInGame && !gameIsFull)
+			gameDao.addGamePlayer(gameId, playerId)
+	}
+
+	fun deleteGamePlayer(gameId: Int, playerId: Int) {
+		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+		if (gameDetails.state != GBState.WAITING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+
+		val playerInGame = gameDetails.players.any { it.id == playerId }
+
+		if (playerInGame)
+			gameDao.deleteGamePlayer(gameId, playerId)
+	}
 }

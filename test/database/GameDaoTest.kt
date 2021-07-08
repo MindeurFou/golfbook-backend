@@ -248,15 +248,12 @@ class GameDaoTest : BaseDaoTest(){
             val gameId = gameDao.insertGame(validPostGameBody)
 
             assertThrows(GBException::class.java) {
-                gameDao.addGamePlayer(gameId, 4, courseId)
-            }
-            assertThrows(GBException::class.java) {
-                gameDao.addGamePlayer(gameId, otherPlayerId, 5)
+                gameDao.addGamePlayer(gameId, 4)
             }
 
-            gameDao.addGamePlayer(gameId, playerId, courseId)
+            gameDao.addGamePlayer(gameId, playerId)
 
-            val gameDetails = gameDao.addGamePlayer(gameId, otherPlayerId, courseId)
+            val gameDetails = gameDao.addGamePlayer(gameId, otherPlayerId)
 
             val scoreBook = DbInstrumentation.initialScoreBook(validPostPlayerBody.username) + DbInstrumentation.initialScoreBook(otherValidPostPlayer.username)
 
@@ -291,7 +288,7 @@ class GameDaoTest : BaseDaoTest(){
                 gameDao.deleteGamePlayer(gameId, 3)
             }
 
-            gameDao.addGamePlayer(gameId, playerId, courseId)
+            gameDao.addGamePlayer(gameId, playerId)
 
             val gameDetails = gameDao.deleteGamePlayer(gameId, playerId)
             assertThat(gameDetails).isEqualTo( 

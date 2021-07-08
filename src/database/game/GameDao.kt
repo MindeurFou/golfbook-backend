@@ -14,7 +14,7 @@ interface GameDao {
     fun getGamesByTournamentId(tournamentId: Int, limit: Int = 20, offset: Int = 0): List<Game>
 
     // scoreBook specific operations
-    fun addGamePlayer(gameId: Int, playerId: Int, courseId: Int): GameDetails?
+    fun addGamePlayer(gameId: Int, playerId: Int): GameDetails?
     fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails?
     fun updateScoreBook(putScoreBook : PutScoreBook): Map<String, List<Int?>>?
 }

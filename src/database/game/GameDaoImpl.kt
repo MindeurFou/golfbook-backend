@@ -66,7 +66,8 @@ class GameDaoImpl : GameDao {
         gameId
     }
 
-    override fun addGamePlayer(gameId: Int, playerId: Int, courseId: Int): GameDetails? {
+    override fun addGamePlayer(gameId: Int, playerId: Int): GameDetails? {
+        val courseId = getGameById(gameId)?.courseId ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
         scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
 
         PlayerGameAssociation.insert {

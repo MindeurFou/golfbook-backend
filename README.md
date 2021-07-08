@@ -74,6 +74,11 @@ GET /game/{gameId}
 PUT /game/{gameId}
 DELETE /game/{gameId}
 ```
+Add or delete a player to a game. It takes a PatchGameBody as a parameter. Returns boolean ?
+```
+PATCH /game/{gameId}
+```
+
 Get and update operations on the scorebook of a game.
 ```
 GET /game/{gameId}/scorebook

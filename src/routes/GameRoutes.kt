@@ -1,5 +1,6 @@
 package com.mindeurfou.routes
 
+import com.mindeurfou.model.game.incoming.PatchGameBody
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.service.GameService
@@ -38,6 +39,19 @@ fun Route.gameRouting() {
                     return@put call.respond(HttpStatusCode.BadRequest)
                 } catch (e: GBException) {
                     call.respondText(e.message, status = HttpStatusCode.NotFound)
+                }
+            }
+
+            patch {
+                val gameId = call.parameters["id"]?.toInt() ?: return@patch call.respond(HttpStatusCode.BadRequest)
+                try {
+                    val patchGameBody = call.receive<PatchGameBody>()
+                    if (patchGameBody.playing)
+                        gameService.addGamePlayer(gameId, patchGameBody.playerId)
+                    else
+                        gameService.deleteGamePlayer(gameId, patchGameBody.playerId)
+                } catch (e: ContentTransformationException) {
+                    return@patch call.respond(HttpStatusCode.BadRequest)
                 }
             }
 
