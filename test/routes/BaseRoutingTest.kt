@@ -1,9 +1,11 @@
 package com.mindeurfou.routes
 
+import com.google.gson.ExclusionStrategy
 import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
+import io.ktor.serialization.*
 import io.ktor.server.testing.*
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
@@ -21,7 +23,7 @@ abstract class BaseRoutingTest {
 
     fun <R> withBaseTestApplication(test: TestApplicationEngine.() -> R) {
         withTestApplication({
-            install(ContentNegotiation) { gson { } }
+            install(ContentNegotiation) { json() }
             koinModules?.let {
                 install(Koin) {
                     modules(it)

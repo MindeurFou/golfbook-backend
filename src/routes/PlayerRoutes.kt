@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.serialization.SerializationException
 import org.koin.ktor.ext.inject
 
 
@@ -36,6 +37,8 @@ fun Route.playerRouting() {
                 try {
                     val updatePlayer = playerService.updatePlayer(putPlayerBody)
                     call.respond(updatePlayer)
+                } catch (e: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest)
                 } catch (gBExcpetion: GBException) {
                     call.respondText(gBExcpetion.message, status = HttpStatusCode.NotFound)
                 }
@@ -54,6 +57,8 @@ fun Route.playerRouting() {
             try {
                 val player = playerService.addNewPlayer(postPlayerBody)
                 call.respond(player)
+            } catch(e: SerializationException) {
+                call.respond(HttpStatusCode.BadRequest)
             } catch (gBException: GBException) {
                 call.respondText(gBException.message, status = HttpStatusCode.Conflict)
             }

@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.serialization.SerializationException
 import org.koin.ktor.ext.inject
 
 fun Route.courseRouting() {
@@ -34,27 +35,31 @@ fun Route.courseRouting() {
                 try {
                     val updatedCourse = courseService.updateCourse(putCourseBody)
                     call.respond(updatedCourse)
+                } catch (e: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest)
                 } catch (gBException: GBException) {
                     call.respondText(gBException.message, status = HttpStatusCode.NotFound)
                 }
             }
-
         }
 
-        post {
-            val postCourseBody = call.receive<PostCourseBody>()
-            try {
-                val courseDetails = courseService.addNewCourse(postCourseBody)
-                call.respond(courseDetails)
-            } catch (gBException : GBException) {
-                call.respondText(gBException.message, status = HttpStatusCode.Conflict)
-            }
-        }
+    }
 
-        get {
-            courseService.getCourses()?.let {
-                call.respond(it)
-            } ?: return@get call.respond(HttpStatusCode.NoContent)
+    post {
+        val postCourseBody = call.receive<PostCourseBody>()
+        try {
+            val courseDetails = courseService.addNewCourse(postCourseBody)
+            call.respond(courseDetails)
+        } catch (e: SerializationException) {
+            call.respond(HttpStatusCode.BadRequest)
+        } catch (gBException : GBException) {
+            call.respondText(gBException.message, status = HttpStatusCode.Conflict)
         }
+    }
+
+    get {
+        courseService.getCourses()?.let {
+            call.respond(it)
+        } ?: return@get call.respond(HttpStatusCode.NoContent)
     }
 }

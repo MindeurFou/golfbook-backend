@@ -2,7 +2,9 @@ package com.mindeurfou.model.game.outgoing
 
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.player.outgoing.Player
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class GameDetails(
     val id : Int,
     val state: GBState,

@@ -10,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.serialization.SerializationException
 import org.koin.ktor.ext.inject
 
 fun Route.gameRouting() {
@@ -35,7 +36,7 @@ fun Route.gameRouting() {
                     val putGameBody = call.receive<PutGameBody>()
                     val updatedGame = gameService.updateGame(putGameBody)
                     call.respond(updatedGame)
-                } catch (e: ContentTransformationException) {
+                } catch (e: SerializationException) {
                     return@put call.respond(HttpStatusCode.BadRequest)
                 } catch (e: GBException) {
                     call.respondText(e.message, status = HttpStatusCode.NotFound)
@@ -50,7 +51,7 @@ fun Route.gameRouting() {
                         gameService.addGamePlayer(gameId, patchGameBody.playerId)
                     else
                         gameService.deleteGamePlayer(gameId, patchGameBody.playerId)
-                } catch (e: ContentTransformationException) {
+                } catch (e: SerializationException) {
                     return@patch call.respond(HttpStatusCode.BadRequest)
                 }
             }
@@ -73,7 +74,7 @@ fun Route.gameRouting() {
                 val postGameBody = call.receive<PostGameBody>()
                 val gameDetails = gameService.addNewGame(postGameBody)
                 call.respond(gameDetails)
-            } catch (e: ContentTransformationException) {
+            } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
                 call.respondText(e.message, status = HttpStatusCode.NotFound)

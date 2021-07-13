@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.serialization.SerializationException
 import org.koin.ktor.ext.inject
 
 fun Route.tournamentRouting() {
@@ -34,7 +35,7 @@ fun Route.tournamentRouting() {
                     val putTournamentBody = call.receive<PutTournamentBody>()
                     val updatedTournament = tournamentService.updateTournament(putTournamentBody)
                     call.respond(updatedTournament)
-                } catch (e: ContentTransformationException) {
+                } catch (e: SerializationException) {
                     return@put call.respond(HttpStatusCode.BadRequest)
                 } catch (e: GBException) {
                     call.respondText(e.message, status = HttpStatusCode.NotFound)
@@ -61,7 +62,7 @@ fun Route.tournamentRouting() {
                 val postTournamentBody = call.receive<PostTournamentBody>()
                 val tournamentDetails = tournamentService.addNewTournament(postTournamentBody)
                 call.respond(tournamentDetails)
-            } catch (e: ContentTransformationException) {
+            } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
                 call.respondText(e.message, status = HttpStatusCode.NotFound)
