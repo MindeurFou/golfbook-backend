@@ -16,5 +16,6 @@ interface GameDao {
     // scoreBook specific operations
     fun addGamePlayer(gameId: Int, playerId: Int): GameDetails?
     fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails?
-    fun updateScoreBook(putScoreBook : PutScoreBook): Map<String, List<Int?>>?
+    fun updateScoreBook(putScoreBook : PutScoreBook): Map<String, List<Int?>>
+    fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>?
 }

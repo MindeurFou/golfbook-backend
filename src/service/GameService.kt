@@ -6,6 +6,7 @@ import com.mindeurfou.database.game.GameDaoImpl
 import com.mindeurfou.database.tournament.TournamentDao
 import com.mindeurfou.database.tournament.TournamentDaoImpl
 import com.mindeurfou.model.GBState
+import com.mindeurfou.model.game.PutScoreBook
 import com.mindeurfou.model.game.outgoing.GameDetails
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
@@ -83,5 +84,16 @@ class GameService : ServiceNotification() {
 
 		if (playerInGame)
 			gameDao.deleteGamePlayer(gameId, playerId)
+	}
+
+	fun updateScoreBook(putScoreBook: PutScoreBook): Map<String, List<Int?>> {
+		val gameDetails = gameDao.getGameById(putScoreBook.gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+		if (gameDetails.state != GBState.PENDING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+
+		return gameDao.updateScoreBook(putScoreBook)
+	}
+
+	fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>> {
+		return gameDao.getScoreBookByGameId(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 	}
 }

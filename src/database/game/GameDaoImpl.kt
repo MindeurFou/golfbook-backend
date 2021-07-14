@@ -89,8 +89,11 @@ class GameDaoImpl : GameDao {
         return getGameById(gameId)
     }
 
-    override fun updateScoreBook(putScoreBook: PutScoreBook): Map<String, List<Int?>>? =
+    override fun updateScoreBook(putScoreBook: PutScoreBook): Map<String, List<Int?>> =
         scoreBookDao.updateScoreBook(putScoreBook)
+
+    override fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>? =
+        scoreBookDao.getScoreBookByGameId(gameId)
 
     override fun updateGame(putGame: PutGameBody): GameDetails = transaction {
 
@@ -125,7 +128,7 @@ class GameDaoImpl : GameDao {
         fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>?
         fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int) 
         fun deleteScoreBookPlayer(gameId: Int, playerId: Int): Boolean
-        fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>>?
+        fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>>
         fun deleteScoreBook(gameId: Int): Boolean
     }
 
@@ -186,7 +189,7 @@ class GameDaoImpl : GameDao {
             ScoreBookTable.deleteWhere { ScoreBookTable.gameId eq gameId  and (ScoreBookTable.playerId eq playerId)} > 0
         }
 
-        override fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>>? = transaction {
+        override fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>> = transaction {
 
             getGameById(scoreBook.gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
             scoreBook.scoreBook.forEach { (playerId, scoreBookEntry) ->
@@ -213,7 +216,7 @@ class GameDaoImpl : GameDao {
                     it[hole18] = scoreBookEntry[17]
                 }
             }
-            getScoreBookByGameId(scoreBook.gameId)
+            getScoreBookByGameId(scoreBook.gameId)!!
         }
 
         override fun deleteScoreBook(gameId: Int): Boolean = transaction {

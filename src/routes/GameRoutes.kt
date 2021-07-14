@@ -1,5 +1,6 @@
 package com.mindeurfou.routes
 
+import com.mindeurfou.model.game.PutScoreBook
 import com.mindeurfou.model.game.incoming.PatchGameBody
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
@@ -51,6 +52,7 @@ fun Route.gameRouting() {
                         gameService.addGamePlayer(gameId, patchGameBody.playerId)
                     else
                         gameService.deleteGamePlayer(gameId, patchGameBody.playerId)
+                    call.respond(HttpStatusCode.OK)
                 } catch (e: SerializationException) {
                     return@patch call.respond(HttpStatusCode.BadRequest)
                 }
@@ -94,6 +96,28 @@ fun Route.gameRouting() {
 private fun Route.scoreBookRouting(gameService: GameService) {
 
     route("scorebook") {
-        // TODO
+
+        put {
+            call.parameters["id"]?.toInt() ?: return@put call.respond(HttpStatusCode.BadRequest)
+            try {
+                val putScoreBook = call.receive<PutScoreBook>()
+                val updatedScorebook = gameService.updateScoreBook(putScoreBook)
+                call.respond(updatedScorebook)
+            } catch (e: SerializationException) {
+                call.respond(HttpStatusCode.BadRequest)
+            } catch (e: GBException) {
+                call.respondText(e.message, status = HttpStatusCode.NotFound)
+            }
+        }
+
+        get {
+            val gameId = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
+            try {
+                val scoreBook = gameService.getScoreBookByGameId(gameId)
+                call.respond(scoreBook)
+            } catch (e: GBException) {
+                call.respondText(e.message, status = HttpStatusCode.NotFound)
+            }
+        }
     }
 }
