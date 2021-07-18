@@ -4,6 +4,7 @@ import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.service.CourseService
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.GBHttpStatusCode
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -26,7 +27,7 @@ fun Route.courseRouting() {
                     val courseDetails = courseService.getCourse(courseId)
                     call.respond(courseDetails)
                 } catch (gBException : GBException) {
-                    call.respondText(gBException.message, status = HttpStatusCode.NotFound)
+                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -38,7 +39,7 @@ fun Route.courseRouting() {
                 } catch (e: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest)
                 } catch (gBException: GBException) {
-                    call.respondText(gBException.message, status = HttpStatusCode.NotFound)
+                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
                 }
             }
         }
@@ -53,7 +54,7 @@ fun Route.courseRouting() {
         } catch (e: SerializationException) {
             call.respond(HttpStatusCode.BadRequest)
         } catch (gBException : GBException) {
-            call.respondText(gBException.message, status = HttpStatusCode.Conflict)
+            call.respondText(gBException.message, status = GBHttpStatusCode.value)
         }
     }
 

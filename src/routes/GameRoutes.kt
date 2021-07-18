@@ -6,6 +6,7 @@ import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.service.GameService
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.GBHttpStatusCode
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -28,7 +29,7 @@ fun Route.gameRouting() {
                     val gameDetails = gameService.getGame(gameId)
                     call.respond(gameDetails)
                 } catch (gBException: GBException) {
-                    call.respondText(gBException.message, status = HttpStatusCode.NotFound)
+                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -40,7 +41,7 @@ fun Route.gameRouting() {
                 } catch (e: SerializationException) {
                     return@put call.respond(HttpStatusCode.BadRequest)
                 } catch (e: GBException) {
-                    call.respondText(e.message, status = HttpStatusCode.NotFound)
+                    call.respondText(e.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -64,7 +65,7 @@ fun Route.gameRouting() {
                     val deleted = gameService.deleteGame(gameId)
                     call.respond(deleted)
                 } catch (e: GBException) {
-                    call.respondText(e.message, status = HttpStatusCode.NotFound)
+                    call.respondText(e.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -79,7 +80,7 @@ fun Route.gameRouting() {
             } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
-                call.respondText(e.message, status = HttpStatusCode.NotFound)
+                call.respondText(e.message, status = GBHttpStatusCode.value)
             }
         }
 
@@ -106,7 +107,7 @@ private fun Route.scoreBookRouting(gameService: GameService) {
             } catch (e: SerializationException) {
                 call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
-                call.respondText(e.message, status = HttpStatusCode.NotFound)
+                call.respondText(e.message, status = GBHttpStatusCode.value)
             }
         }
 
@@ -116,7 +117,7 @@ private fun Route.scoreBookRouting(gameService: GameService) {
                 val scoreBook = gameService.getScoreBookByGameId(gameId)
                 call.respond(scoreBook)
             } catch (e: GBException) {
-                call.respondText(e.message, status = HttpStatusCode.NotFound)
+                call.respondText(e.message, status = GBHttpStatusCode.value)
             }
         }
     }

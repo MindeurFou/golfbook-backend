@@ -12,5 +12,5 @@ data class TournamentDetails(
     val state: GBState,
     val leaderBoard: Map<String, Int>? = null,
     @Serializable(with = DateAsLongSerializer::class)
-    val createdAt: LocalDate,
+    val createdAt: LocalDate
 )

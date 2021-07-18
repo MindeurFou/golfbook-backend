@@ -4,6 +4,7 @@ import com.mindeurfou.model.player.incoming.PostPlayerBody
 import com.mindeurfou.model.player.incoming.PutPlayerBody
 import com.mindeurfou.service.PlayerService
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.GBHttpStatusCode
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -28,7 +29,7 @@ fun Route.playerRouting() {
                     val player = playerService.getPlayer(playerId)
                     call.respond(player)
                 } catch (gBException: GBException) {
-                    call.respondText(gBException.message, status = HttpStatusCode.NotFound)
+                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -40,7 +41,7 @@ fun Route.playerRouting() {
                 } catch (e: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest)
                 } catch (gBExcpetion: GBException) {
-                    call.respondText(gBExcpetion.message, status = HttpStatusCode.NotFound)
+                    call.respondText(gBExcpetion.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -60,7 +61,7 @@ fun Route.playerRouting() {
             } catch(e: SerializationException) {
                 call.respond(HttpStatusCode.BadRequest)
             } catch (gBException: GBException) {
-                call.respondText(gBException.message, status = HttpStatusCode.Conflict)
+                call.respondText(gBException.message, status = GBHttpStatusCode.value)
             }
         }
 

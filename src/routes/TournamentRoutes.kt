@@ -4,6 +4,7 @@ import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.model.tournament.incoming.PutTournamentBody
 import com.mindeurfou.service.TournamentService
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.GBHttpStatusCode
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -26,7 +27,7 @@ fun Route.tournamentRouting() {
                     val tournamentDetails = tournamentService.getTournament(tournamentId)
                     call.respond(tournamentDetails)
                 } catch (e: GBException) {
-                    return@get call.respondText(e.message, status = HttpStatusCode.NotFound)
+                    return@get call.respondText(e.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -38,7 +39,7 @@ fun Route.tournamentRouting() {
                 } catch (e: SerializationException) {
                     return@put call.respond(HttpStatusCode.BadRequest)
                 } catch (e: GBException) {
-                    call.respondText(e.message, status = HttpStatusCode.NotFound)
+                    call.respondText(e.message, status = GBHttpStatusCode.value)
                 }
             }
 
@@ -65,7 +66,7 @@ fun Route.tournamentRouting() {
             } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
-                call.respondText(e.message, status = HttpStatusCode.NotFound)
+                call.respondText(e.message, status = GBHttpStatusCode.value)
             }
 
         }

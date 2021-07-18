@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class PutGameBody(
     val id: Int,
     val state: GBState,
-    val courseId: Int,
+    val courseId: Int
 )
