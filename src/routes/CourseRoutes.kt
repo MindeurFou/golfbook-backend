@@ -44,23 +44,23 @@ fun Route.courseRouting() {
             }
         }
 
-    }
+        post {
+            val postCourseBody = call.receive<PostCourseBody>()
+            try {
+                val courseDetails = courseService.addNewCourse(postCourseBody)
+                call.respond(courseDetails)
+            } catch (e: SerializationException) {
+                call.respond(HttpStatusCode.BadRequest)
+            } catch (gBException : GBException) {
+                call.respondText(gBException.message, status = GBHttpStatusCode.value)
+            }
+        }
 
-    post {
-        val postCourseBody = call.receive<PostCourseBody>()
-        try {
-            val courseDetails = courseService.addNewCourse(postCourseBody)
-            call.respond(courseDetails)
-        } catch (e: SerializationException) {
-            call.respond(HttpStatusCode.BadRequest)
-        } catch (gBException : GBException) {
-            call.respondText(gBException.message, status = GBHttpStatusCode.value)
+        get {
+            courseService.getCourses()?.let {
+                call.respond(it)
+            } ?: return@get call.respond(HttpStatusCode.NoContent)
         }
     }
 
-    get {
-        courseService.getCourses()?.let {
-            call.respond(it)
-        } ?: return@get call.respond(HttpStatusCode.NoContent)
-    }
 }
