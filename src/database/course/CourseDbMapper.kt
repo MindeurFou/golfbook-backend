@@ -1,6 +1,6 @@
 package com.mindeurfou.database.course
 
-import com.mindeurfou.DatabaseMapper
+import com.mindeurfou.utils.DatabaseMapper
 import com.mindeurfou.model.course.outgoing.Course
 import org.jetbrains.exposed.sql.ResultRow
 

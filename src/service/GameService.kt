@@ -19,7 +19,7 @@ class GameService : ServiceNotification() {
 	// CRUD classic methods
 
 	fun getGame(gameId: Int): GameDetails {
-		return gameDao.getGameById(gameId) ?: throw GBException("This game doesn't exist")
+		return gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 	}
 
 	fun addNewGame(postGame: PostGameBody) : GameDetails {
@@ -60,8 +60,11 @@ class GameService : ServiceNotification() {
 
 	fun deleteGame(gameId: Int): Boolean = gameDao.deleteGame(gameId)
 
-	fun getGameByTournamentId(tournamentId: Int, limit : Int = 20, offset : Int = 0) =
-		gameDao.getGamesByTournamentId(tournamentId, limit, offset)
+	fun getGameByTournamentId(
+		tournamentId: Int,
+		limit : Int = GET_GAMES_DEFAULT_SIZE,
+		offset : Int = GET_GAMES_DEFAULT_OFFSET
+	) = gameDao.getGamesByTournamentId(tournamentId, limit, offset)
 
 	// in-game specific operations
 
@@ -95,5 +98,10 @@ class GameService : ServiceNotification() {
 
 	fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>> {
 		return gameDao.getScoreBookByGameId(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+	}
+
+	companion object {
+		const val GET_GAMES_DEFAULT_SIZE = 10
+		const val GET_GAMES_DEFAULT_OFFSET = 0
 	}
 }

@@ -1,4 +1,4 @@
-package com.mindeurfou.routes
+package routes
 
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.incoming.PostGameBody

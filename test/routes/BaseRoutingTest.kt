@@ -1,4 +1,4 @@
-package com.mindeurfou.routes
+package routes
 
 import com.google.gson.Gson
 import io.ktor.application.*

@@ -19,7 +19,7 @@ class PlayerDaoImpl : PlayerDao {
 
     override fun getPlayers(filters: Map<String, String>?, limit: Int, offset: Int) = transaction {
         PlayerTable.selectAll()
-            .limit(limit)
+            .limit(limit, offset.toLong())
             .orderBy(PlayerTable.id to SortOrder.DESC)
             .mapNotNull { PlayerDbMapper.mapFromEntity(it) }
     }
@@ -34,7 +34,7 @@ class PlayerDaoImpl : PlayerDao {
         }.value
     }
 
-    override fun updatePlayer(putPlayer: PutPlayerBody): Player? {
+    override fun updatePlayer(putPlayer: PutPlayerBody): Player {
         transaction {
             val updatedColumns = PlayerTable.update( {PlayerTable.id eq putPlayer.id} ) {
                 it[username] = putPlayer.username
@@ -42,7 +42,7 @@ class PlayerDaoImpl : PlayerDao {
             }
             if (updatedColumns == 0) throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
         }
-        return getPlayerById(putPlayer.id)
+        return getPlayerById(putPlayer.id)!!
     }
 
     override fun deletePlayer(playerId: Int) = transaction {

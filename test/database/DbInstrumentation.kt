@@ -1,4 +1,4 @@
-package com.mindeurfou.database
+package database
 
 import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.hole.incoming.PostHoleBody

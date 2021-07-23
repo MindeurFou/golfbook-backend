@@ -1,4 +1,4 @@
-package com.mindeurfou.database
+package database
 
 import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
@@ -7,6 +7,7 @@ import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.model.course.outgoing.Course
 import com.mindeurfou.model.course.outgoing.CourseDetails
+import com.mindeurfou.service.CourseService
 import com.mindeurfou.utils.GBException
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -152,9 +153,7 @@ class CourseDaoTest : BaseDaoTest(){
             val courseId0 = courseDao.insertCourse(validCourseBody)
             val courseId1 = courseDao.insertCourse(validCourseBody)
 
-            val courses = courseDao.getCourses()
-
-            courses ?: throw IllegalStateException("Courses shouldn't be null")
+            val courses = courseDao.getCourses(limit = CourseService.GET_COURSES_DEFAULT_LIMIT, offset = CourseService.GET_COURSES_DEFAULT_OFFSET)
 
             assertEquals(courses.size, 2)
             assertThat(courses[0]).isEqualTo(

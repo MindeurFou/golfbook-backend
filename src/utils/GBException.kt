@@ -14,6 +14,7 @@ class GBException(
 
         const val INVALID_OPERATION_MESSAGE    = "Invalid operation"
         const val TOURNAMENT_DONE_MESSAGE      = "This tournament is finished"
+        const val USERNAME_ALREADY_TAKEN_MESSAGE = "This username is already taken"
     }
 }
 

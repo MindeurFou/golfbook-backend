@@ -7,7 +7,7 @@ import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.model.course.outgoing.CourseDetails
 import com.mindeurfou.utils.GBException
 
-object CourseService {
+class CourseService {
 
     private val courseDao: CourseDao = CourseDaoImpl()
 
@@ -27,7 +27,15 @@ object CourseService {
     fun deleteCourse(courseId: Int): Boolean =
         courseDao.deleteCourse(courseId)
 
-//    TODO virer le ? sur le String
-    fun getCourses(filters: Map<String, String?>? = null, limit : Int? = null, offset: Int? = null) =
-        courseDao.getCourses(filters, limit, offset)
+    fun getCourses(
+        filters: Map<String, String>? = null,
+        limit : Int = GET_COURSES_DEFAULT_LIMIT,
+        offset: Int = GET_COURSES_DEFAULT_OFFSET
+    ) = courseDao.getCourses(filters, limit, offset)
+
+    companion object {
+        const val GET_COURSES_DEFAULT_LIMIT = 20
+        const val GET_COURSES_DEFAULT_OFFSET = 0
+    }
+
 }

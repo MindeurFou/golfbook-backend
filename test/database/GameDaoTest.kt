@@ -1,16 +1,16 @@
-package com.mindeurfou.database
+package database
 
+import com.mindeurfou.database.PlayerGameAssociation
 import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
 import com.mindeurfou.database.course.CourseTable
 import com.mindeurfou.database.game.GameDao
 import com.mindeurfou.database.game.GameDaoImpl
 import com.mindeurfou.database.game.GameTable
-import com.mindeurfou.database.game.ScoreBookTable
+import com.mindeurfou.database.game.scorebook.ScoreBookTable
 import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
-import com.mindeurfou.database.tournament.TournamentDao
 import com.mindeurfou.database.tournament.TournamentDaoImpl
 import com.mindeurfou.database.tournament.TournamentTable
 import com.mindeurfou.model.GBState
@@ -202,7 +202,7 @@ class GameDaoTest : BaseDaoTest(){
 
 
             val games = gameDao.getGamesByTournamentId(tournamentId)
-            assertEquals(1, games.size)
+            assertEquals(1, games!!.size)
             assertThat(games[0]).isEqualTo(
                 Game(
                     gameId,

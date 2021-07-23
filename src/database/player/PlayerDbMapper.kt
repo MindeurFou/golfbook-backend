@@ -1,6 +1,6 @@
 package com.mindeurfou.database.player
 
-import com.mindeurfou.DatabaseMapper
+import com.mindeurfou.utils.DatabaseMapper
 import com.mindeurfou.model.player.outgoing.Player
 import org.jetbrains.exposed.sql.ResultRow
 

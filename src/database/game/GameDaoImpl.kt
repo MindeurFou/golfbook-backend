@@ -4,6 +4,8 @@ import com.mindeurfou.database.PlayerGameAssociation
 import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
 import com.mindeurfou.database.course.CourseTable
+import com.mindeurfou.database.game.scorebook.ScoreBookDbMapper
+import com.mindeurfou.database.game.scorebook.ScoreBookTable
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
 import com.mindeurfou.database.player.PlayerDbMapper
@@ -114,14 +116,18 @@ class GameDaoImpl : GameDao {
         GameTable.deleteWhere { GameTable.id eq gameId } > 0
     }
 
-    override fun getGamesByTournamentId(tournamentId: Int, limit: Int, offset: Int): List<Game> = transaction {
-        GameTable.select {
+    override fun getGamesByTournamentId(tournamentId: Int, limit: Int, offset: Int): List<Game>? = transaction {
+        val games = GameTable.select {
             GameTable.tournamentId eq tournamentId
-        }.mapNotNull {
-            val scoreBook = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)
-            val players = scoreBook?.keys?.toList()
-            GameDbMapper.mapFromEntity(it, players)
         }
+            .limit(limit, offset.toLong())
+//            .orderBy(GameTable.creationDate to SortOrder.DESC) TODO add date into game data classes
+            .mapNotNull {
+                val scoreBook = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)
+                val players = scoreBook?.keys?.toList()
+                GameDbMapper.mapFromEntity(it, players)
+            }
+        games.ifEmpty { null }
     }
 
     interface ScoreBookDao {
@@ -195,7 +201,7 @@ class GameDaoImpl : GameDao {
             scoreBook.scoreBook.forEach { (playerId, scoreBookEntry) ->
                 playerDao.getPlayerById(playerId) ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE) // update player only if not thrown ?
 
-                ScoreBookTable.update( {ScoreBookTable.gameId eq scoreBook.gameId and (ScoreBookTable.playerId eq playerId) } ) {
+                ScoreBookTable.update( { ScoreBookTable.gameId eq scoreBook.gameId and (ScoreBookTable.playerId eq playerId) } ) {
                     it[hole1] = scoreBookEntry[0]!!
                     it[hole2] = scoreBookEntry[1]!!
                     it[hole3] = scoreBookEntry[2]!!

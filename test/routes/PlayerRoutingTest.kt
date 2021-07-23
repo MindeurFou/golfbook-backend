@@ -1,6 +1,7 @@
-package com.mindeurfou.routes
+package routes
 
 import com.mindeurfou.model.player.outgoing.Player
+import com.mindeurfou.routes.playerRouting
 import com.mindeurfou.service.PlayerService
 import io.ktor.application.install
 import io.ktor.http.*

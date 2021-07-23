@@ -5,7 +5,6 @@ import com.mindeurfou.database.DatabaseProviderContract
 import com.mindeurfou.routes.*
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.gson.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
 import org.koin.dsl.module

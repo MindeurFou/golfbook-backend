@@ -27,7 +27,7 @@ fun Route.tournamentRouting() {
                     val tournamentDetails = tournamentService.getTournament(tournamentId)
                     call.respond(tournamentDetails)
                 } catch (e: GBException) {
-                    return@get call.respondText(e.message, status = GBHttpStatusCode.value)
+                    return@get call.respond(HttpStatusCode.NotFound)
                 }
             }
 
@@ -39,7 +39,10 @@ fun Route.tournamentRouting() {
                 } catch (e: SerializationException) {
                     return@put call.respond(HttpStatusCode.BadRequest)
                 } catch (e: GBException) {
-                    call.respondText(e.message, status = GBHttpStatusCode.value)
+                    if (e.message == GBException.TOURNAMENT_NOT_FIND_MESSAGE)
+                        call.respond(HttpStatusCode.NotFound)
+                    else // invalid operation
+                        call.respondText(e.message, status = GBHttpStatusCode.valueA)
                 }
             }
 
@@ -55,7 +58,7 @@ fun Route.tournamentRouting() {
         get {
             tournamentService.getTournaments(null)?.let {
                 call.respond(it)
-            } ?: return@get call.respond(HttpStatusCode.NotFound)
+            } ?: return@get call.respond(HttpStatusCode.NoContent)
         }
 
         post {
@@ -66,7 +69,7 @@ fun Route.tournamentRouting() {
             } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
-                call.respondText(e.message, status = GBHttpStatusCode.value)
+                call.respondText(e.message, status = GBHttpStatusCode.valueA)
             }
 
         }

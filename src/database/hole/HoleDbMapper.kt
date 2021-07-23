@@ -1,6 +1,6 @@
 package com.mindeurfou.database.hole
 
-import com.mindeurfou.DatabaseMapper
+import com.mindeurfou.utils.DatabaseMapper
 import com.mindeurfou.model.hole.outgoing.Hole
 import org.jetbrains.exposed.sql.ResultRow
 

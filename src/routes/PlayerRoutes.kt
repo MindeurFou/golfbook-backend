@@ -29,7 +29,7 @@ fun Route.playerRouting() {
                     val player = playerService.getPlayer(playerId)
                     call.respond(player)
                 } catch (gBException: GBException) {
-                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
+                    call.respond(HttpStatusCode.NotFound)
                 }
             }
 
@@ -40,8 +40,8 @@ fun Route.playerRouting() {
                     call.respond(updatePlayer)
                 } catch (e: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest)
-                } catch (gBExcpetion: GBException) {
-                    call.respondText(gBExcpetion.message, status = GBHttpStatusCode.value)
+                } catch (e: GBException) {
+                    call.respond(HttpStatusCode.NotFound)
                 }
             }
 
@@ -61,7 +61,7 @@ fun Route.playerRouting() {
             } catch(e: SerializationException) {
                 call.respond(HttpStatusCode.BadRequest)
             } catch (gBException: GBException) {
-                call.respondText(gBException.message, status = GBHttpStatusCode.value)
+                call.respondText(gBException.message, status = GBHttpStatusCode.valueA)
             }
         }
 
@@ -73,7 +73,11 @@ fun Route.playerRouting() {
                     call.respond(it)
                 } ?: return@get call.respond(HttpStatusCode.NotFound)
             } else {
-                call.respond(playerService.getPlayers())
+                val players = playerService.getPlayers()
+                if (players.isEmpty())
+                    call.respond(HttpStatusCode.NoContent)
+                else
+                    call.respond(players)
             }
         }
 

@@ -29,7 +29,7 @@ fun Route.gameRouting() {
                     val gameDetails = gameService.getGame(gameId)
                     call.respond(gameDetails)
                 } catch (gBException: GBException) {
-                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
+                    call.respond(HttpStatusCode.NotFound)
                 }
             }
 
@@ -41,7 +41,10 @@ fun Route.gameRouting() {
                 } catch (e: SerializationException) {
                     return@put call.respond(HttpStatusCode.BadRequest)
                 } catch (e: GBException) {
-                    call.respondText(e.message, status = GBHttpStatusCode.value)
+                    if (e.message == GBException.GAME_NOT_FIND_MESSAGE)
+                        call.respond(HttpStatusCode.NotFound)
+                    else // invalid operation message
+                        call.respondText(e.message, status = GBHttpStatusCode.valueA)
                 }
             }
 
@@ -65,7 +68,7 @@ fun Route.gameRouting() {
                     val deleted = gameService.deleteGame(gameId)
                     call.respond(deleted)
                 } catch (e: GBException) {
-                    call.respondText(e.message, status = GBHttpStatusCode.value)
+                    call.respondText(e.message, status = GBHttpStatusCode.valueA)
                 }
             }
 
@@ -80,14 +83,19 @@ fun Route.gameRouting() {
             } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
-                call.respondText(e.message, status = GBHttpStatusCode.value)
+                if (e.message == GBException.TOURNAMENT_NOT_FIND_MESSAGE)
+                    call.respond(HttpStatusCode.NotFound)
+                else
+                    call.respond(GBHttpStatusCode.valueA) // tournament done
             }
         }
 
         get {
             val tournamentId = call.parameters["tournamentId"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
             val games = gameService.getGameByTournamentId(tournamentId)
-            call.respond(games)
+            games?.let {
+                call.respond(it)
+            } ?: return@get call.respond(HttpStatusCode.NoContent)
         }
 
     }
@@ -107,7 +115,10 @@ private fun Route.scoreBookRouting(gameService: GameService) {
             } catch (e: SerializationException) {
                 call.respond(HttpStatusCode.BadRequest)
             } catch (e: GBException) {
-                call.respondText(e.message, status = GBHttpStatusCode.value)
+                if (e.message == GBException.GAME_NOT_FIND_MESSAGE)
+                    call.respond(HttpStatusCode.NotFound)
+                else // invalid operation
+                    call.respondText(e.message, status = GBHttpStatusCode.valueA)
             }
         }
 
@@ -117,7 +128,7 @@ private fun Route.scoreBookRouting(gameService: GameService) {
                 val scoreBook = gameService.getScoreBookByGameId(gameId)
                 call.respond(scoreBook)
             } catch (e: GBException) {
-                call.respondText(e.message, status = GBHttpStatusCode.value)
+                call.respond(HttpStatusCode.NotFound)
             }
         }
     }

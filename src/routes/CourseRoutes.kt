@@ -4,7 +4,6 @@ import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.service.CourseService
 import com.mindeurfou.utils.GBException
-import com.mindeurfou.utils.GBHttpStatusCode
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -26,40 +25,49 @@ fun Route.courseRouting() {
                 try {
                     val courseDetails = courseService.getCourse(courseId)
                     call.respond(courseDetails)
-                } catch (gBException : GBException) {
-                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
+                } catch (e : GBException) {
+                    if (e.message == GBException.COURSE_NOT_FIND_MESSAGE)
+                        call.respond(HttpStatusCode.NotFound)
+                    else
+                        call.respond(HttpStatusCode.InternalServerError)
                 }
             }
 
             put {
-                val putCourseBody = call.receive<PutCourseBody>()
                 try {
+                    val putCourseBody = call.receive<PutCourseBody>()
                     val updatedCourse = courseService.updateCourse(putCourseBody)
                     call.respond(updatedCourse)
                 } catch (e: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest)
                 } catch (gBException: GBException) {
-                    call.respondText(gBException.message, status = GBHttpStatusCode.value)
+                    call.respond(HttpStatusCode.NotFound)
                 }
+            }
+
+            delete {
+                val courseId = call.parameters["id"]?.toInt() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+                val deleted = courseService.deleteCourse(courseId)
+                call.respond(deleted)
             }
         }
 
         post {
-            val postCourseBody = call.receive<PostCourseBody>()
             try {
+                val postCourseBody = call.receive<PostCourseBody>()
                 val courseDetails = courseService.addNewCourse(postCourseBody)
                 call.respond(courseDetails)
             } catch (e: SerializationException) {
                 call.respond(HttpStatusCode.BadRequest)
-            } catch (gBException : GBException) {
-                call.respondText(gBException.message, status = GBHttpStatusCode.value)
             }
         }
 
         get {
-            courseService.getCourses()?.let {
-                call.respond(it)
-            } ?: return@get call.respond(HttpStatusCode.NoContent)
+            val courses = courseService.getCourses()
+            if (courses.isEmpty())
+                call.respond(HttpStatusCode.NoContent)
+            else
+                call.respond(courses)
         }
     }
 

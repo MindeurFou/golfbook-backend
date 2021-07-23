@@ -86,7 +86,7 @@ class CourseDaoImpl : CourseDao {
         }.singleOrNull()
     }
 
-    override fun getCourses(filters: Map<String, String>?, limit: Int?, offset: Int?): List<Course> {
+    override fun getCourses(filters: Map<String, String>?, limit: Int, offset: Int): List<Course> {
         return transaction { getAllCourses() }
     }
     

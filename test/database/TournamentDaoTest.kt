@@ -1,4 +1,4 @@
-package com.mindeurfou.database
+package database
 
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl

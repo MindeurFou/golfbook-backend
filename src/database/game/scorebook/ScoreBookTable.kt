@@ -1,5 +1,6 @@
-package com.mindeurfou.database.game
+package com.mindeurfou.database.game.scorebook
 
+import com.mindeurfou.database.game.GameTable
 import com.mindeurfou.database.player.PlayerTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
