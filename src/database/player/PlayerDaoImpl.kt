@@ -17,6 +17,14 @@ class PlayerDaoImpl : PlayerDao {
         }.singleOrNull()
     }
 
+    override fun getPlayers(filters: Map<String, String>?, limit: Int, offset: Int) = transaction {
+        PlayerTable.selectAll()
+            .limit(limit)
+            .orderBy(PlayerTable.id to SortOrder.DESC)
+            .mapNotNull { PlayerDbMapper.mapFromEntity(it) }
+    }
+
+
     override fun insertPlayer(postPlayer: PostPlayerBody): Int = transaction {
         PlayerTable.insertAndGetId {
             it[name] = postPlayer.name

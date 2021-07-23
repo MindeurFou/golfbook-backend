@@ -31,4 +31,15 @@ class PlayerService {
 	fun deletePlayer(playerId: Int): Boolean = playerDao.deletePlayer(playerId)
 
 	fun getPlayerByUsername(username: String): Player? = playerDao.getPlayerByUsername(username)
+
+	fun getPlayers(
+		filters: Map<String, String>? = null,
+		limit: Int = GET_PLAYER_LIST_DEFAULT_LIMIT,
+		offset: Int = GET_PLAYER_LIST_DEFAULT_OFFSET
+	) = playerDao.getPlayers(filters, limit, offset)
+
+	companion object {
+		private const val GET_PLAYER_LIST_DEFAULT_LIMIT = 10
+		private const val GET_PLAYER_LIST_DEFAULT_OFFSET = 0
+	}
 }

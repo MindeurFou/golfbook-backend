@@ -86,12 +86,11 @@ class CourseDaoImpl : CourseDao {
         }.singleOrNull()
     }
 
-    override fun getCourses(filters: Map<String, String?>?, limit: Int?, offset: Int?): List<Course>? {
-        // TODO handle filters
+    override fun getCourses(filters: Map<String, String>?, limit: Int?, offset: Int?): List<Course> {
         return transaction { getAllCourses() }
     }
     
-    private fun getAllCourses(limit: Int = 20, offset: Long = 0) : List<Course>? {
+    private fun getAllCourses(limit: Int = 20, offset: Long = 0) : List<Course> {
         return CourseTable.selectAll()
             .limit(limit, offset)
             .orderBy(CourseTable.createdAt to SortOrder.DESC)

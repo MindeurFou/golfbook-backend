@@ -27,6 +27,7 @@ object CourseService {
     fun deleteCourse(courseId: Int): Boolean =
         courseDao.deleteCourse(courseId)
 
+//    TODO virer le ? sur le String
     fun getCourses(filters: Map<String, String?>? = null, limit : Int? = null, offset: Int? = null) =
         courseDao.getCourses(filters, limit, offset)
 }
