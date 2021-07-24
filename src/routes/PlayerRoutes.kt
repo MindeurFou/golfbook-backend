@@ -66,14 +66,16 @@ fun Route.playerRouting() {
         }
 
         get {
-            val username = call.parameters["username"] // return@get call.respond(HttpStatusCode.BadRequest)
+            val username = call.parameters["username"]
 
             if (username != null) {
                 playerService.getPlayerByUsername(username)?.let {
                     call.respond(it)
                 } ?: return@get call.respond(HttpStatusCode.NotFound)
             } else {
-                val players = playerService.getPlayers()
+                val limit = call.parameters["limit"]?.toInt()
+                val offset = call.parameters["offset"]?.toInt()
+                val players = playerService.getPlayers(limit = limit, offset = offset)
                 if (players.isEmpty())
                     call.respond(HttpStatusCode.NoContent)
                 else

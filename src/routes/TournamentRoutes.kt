@@ -56,7 +56,9 @@ fun Route.tournamentRouting() {
         }
 
         get {
-            tournamentService.getTournaments(null)?.let {
+            val limit = call.parameters["limit"]?.toInt()
+            val offset = call.parameters["offset"]?.toInt()
+            tournamentService.getTournaments(null, limit, offset)?.let {
                 call.respond(it)
             } ?: return@get call.respond(HttpStatusCode.NoContent)
         }

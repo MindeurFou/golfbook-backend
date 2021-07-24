@@ -32,11 +32,12 @@ class PlayerService {
 
 	fun getPlayerByUsername(username: String): Player? = playerDao.getPlayerByUsername(username)
 
-	fun getPlayers(
-		filters: Map<String, String>? = null,
-		limit: Int = GET_PLAYER_LIST_DEFAULT_LIMIT,
-		offset: Int = GET_PLAYER_LIST_DEFAULT_OFFSET
-	) = playerDao.getPlayers(filters, limit, offset)
+	fun getPlayers(filters: Map<String, String>? = null, limit: Int?, offset: Int?): List<Player> {
+        val actualLimit = limit ?: GET_PLAYER_LIST_DEFAULT_LIMIT
+		val actualOffset = offset ?: GET_PLAYER_LIST_DEFAULT_OFFSET
+		return playerDao.getPlayers(filters, actualLimit, actualOffset)
+	}
+
 
 	companion object {
 		const val GET_PLAYER_LIST_DEFAULT_LIMIT = 20

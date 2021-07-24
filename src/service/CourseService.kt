@@ -4,6 +4,7 @@ import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
 import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.course.incoming.PutCourseBody
+import com.mindeurfou.model.course.outgoing.Course
 import com.mindeurfou.model.course.outgoing.CourseDetails
 import com.mindeurfou.utils.GBException
 
@@ -27,11 +28,11 @@ class CourseService {
     fun deleteCourse(courseId: Int): Boolean =
         courseDao.deleteCourse(courseId)
 
-    fun getCourses(
-        filters: Map<String, String>? = null,
-        limit : Int = GET_COURSES_DEFAULT_LIMIT,
-        offset: Int = GET_COURSES_DEFAULT_OFFSET
-    ) = courseDao.getCourses(filters, limit, offset)
+    fun getCourses(filters: Map<String, String>? = null, limit : Int?, offset: Int?): List<Course> {
+        val actualLimit = limit ?: GET_COURSES_DEFAULT_LIMIT
+        val actualOffset = offset ?: GET_COURSES_DEFAULT_OFFSET
+        return courseDao.getCourses(filters, actualLimit, actualOffset)
+    }
 
     companion object {
         const val GET_COURSES_DEFAULT_LIMIT = 20

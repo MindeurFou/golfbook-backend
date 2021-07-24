@@ -63,7 +63,9 @@ fun Route.courseRouting() {
         }
 
         get {
-            val courses = courseService.getCourses()
+            val limit = call.parameters["limit"]?.toInt()
+            val offset = call.parameters["offset"]?.toInt()
+            val courses = courseService.getCourses(limit = limit, offset = offset)
             if (courses.isEmpty())
                 call.respond(HttpStatusCode.NoContent)
             else
