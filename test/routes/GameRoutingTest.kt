@@ -2,6 +2,7 @@ package routes
 
 import com.mindeurfou.model.game.incoming.PatchGameBody
 import com.mindeurfou.model.game.outgoing.GameDetails
+import com.mindeurfou.model.game.outgoing.ScoreBook
 import com.mindeurfou.routes.*
 import com.mindeurfou.service.GameService
 import io.ktor.application.*
@@ -99,12 +100,12 @@ class GameRoutingTest : BaseRoutingTest() {
 
     @Test
     fun `PUT scorebook`() = withBaseTestApplication {
-        val expectedScoreBook = mapOf("Player" to listOf(1,3,null,null,null,null, null, null, null))
+        val expectedScoreBook = ScoreBook(mapOf("Player" to listOf(1,3,null,null,null,null, null, null, null)))
         every { gameService.getScoreBookByGameId(any()) } returns expectedScoreBook
         handleRequest(HttpMethod.Get, "/game/1/scorebook") {
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
         }.apply {
-            val scorebook = response.parseBodyAsScoreBook()
+            val scorebook = response.parseBody(ScoreBook::class.java)
             assertEquals(expectedScoreBook, scorebook)
         }
     }

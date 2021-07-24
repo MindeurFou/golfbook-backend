@@ -9,7 +9,7 @@ import org.koin.dsl.module
 object RoutesInjection {
     val koinRoutesModule = module {
         single { PlayerService() }
-        single { CourseService }
+        single { CourseService() }
         single { GameService() }
         single { TournamentService() }
     }

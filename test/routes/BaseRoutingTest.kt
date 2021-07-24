@@ -39,8 +39,4 @@ abstract class BaseRoutingTest {
         return gson.fromJson(content, clazz)
     }
 
-    fun TestApplicationResponse.parseBodyAsScoreBook(): Map<String, List<Int?>> {
-        return Json.decodeFromString(content!!)
-    }
-
 }

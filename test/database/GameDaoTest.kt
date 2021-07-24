@@ -19,6 +19,7 @@ import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.outgoing.GameDetails
+import com.mindeurfou.model.game.outgoing.ScoreBook
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.utils.GBException
@@ -255,7 +256,7 @@ class GameDaoTest : BaseDaoTest(){
 
             val gameDetails = gameDao.addGamePlayer(gameId, otherPlayerId)
 
-            val scoreBook = DbInstrumentation.initialScoreBook(validPostPlayerBody.username) + DbInstrumentation.initialScoreBook(otherValidPostPlayer.username)
+            val scoreBook = ScoreBook(DbInstrumentation.initialScoreBook(validPostPlayerBody.username) + DbInstrumentation.initialScoreBook(otherValidPostPlayer.username))
 
             assertThat(gameDetails).isEqualTo(
                 GameDetails(

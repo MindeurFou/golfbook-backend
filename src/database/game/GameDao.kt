@@ -5,6 +5,7 @@ import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.GameDetails
+import com.mindeurfou.model.game.outgoing.ScoreBook
 
 interface GameDao {
     fun getGameById(gameId: Int): GameDetails?
@@ -16,6 +17,6 @@ interface GameDao {
     // scoreBook specific operations
     fun addGamePlayer(gameId: Int, playerId: Int): GameDetails?
     fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails?
-    fun updateScoreBook(putScoreBook : PutScoreBook): Map<String, List<Int?>>
-    fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>?
+    fun updateScoreBook(putScoreBook : PutScoreBook): ScoreBook
+    fun getScoreBookByGameId(gameId: Int): ScoreBook?
 }

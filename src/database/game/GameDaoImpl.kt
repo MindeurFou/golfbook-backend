@@ -17,6 +17,7 @@ import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.GameDetails
+import com.mindeurfou.model.game.outgoing.ScoreBook
 import com.mindeurfou.utils.GBException
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
@@ -91,10 +92,10 @@ class GameDaoImpl : GameDao {
         return getGameById(gameId)
     }
 
-    override fun updateScoreBook(putScoreBook: PutScoreBook): Map<String, List<Int?>> =
+    override fun updateScoreBook(putScoreBook: PutScoreBook): ScoreBook =
         scoreBookDao.updateScoreBook(putScoreBook)
 
-    override fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>? =
+    override fun getScoreBookByGameId(gameId: Int): ScoreBook? =
         scoreBookDao.getScoreBookByGameId(gameId)
 
     override fun updateGame(putGame: PutGameBody): GameDetails = transaction {
@@ -124,17 +125,17 @@ class GameDaoImpl : GameDao {
 //            .orderBy(GameTable.creationDate to SortOrder.DESC) TODO add date into game data classes
             .mapNotNull {
                 val scoreBook = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)
-                val players = scoreBook?.keys?.toList()
+                val players = scoreBook?.value?.keys?.toList()
                 GameDbMapper.mapFromEntity(it, players)
             }
         games.ifEmpty { null }
     }
 
     interface ScoreBookDao {
-        fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>?
+        fun getScoreBookByGameId(gameId: Int): ScoreBook?
         fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int) 
         fun deleteScoreBookPlayer(gameId: Int, playerId: Int): Boolean
-        fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>>
+        fun updateScoreBook(scoreBook: PutScoreBook): ScoreBook
         fun deleteScoreBook(gameId: Int): Boolean
     }
 
@@ -144,16 +145,17 @@ class GameDaoImpl : GameDao {
         private val playerDao : PlayerDao
     ) : ScoreBookDao{
 
-        override fun getScoreBookByGameId(gameId: Int): Map<String, List<Int?>>? = transaction {
+        override fun getScoreBookByGameId(gameId: Int): ScoreBook? = transaction {
             val query = (ScoreBookTable innerJoin PlayerTable).select {
                 ScoreBookTable.gameId eq gameId
             }
 
             if (query.empty()) return@transaction null
 
-            query.associate {
+            val scoreBook = query.associate {
                 ScoreBookDbMapper.mapFromEntity(it)
             }
+            ScoreBook(scoreBook)
         }
 
         override fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int): Unit = transaction {
@@ -195,7 +197,7 @@ class GameDaoImpl : GameDao {
             ScoreBookTable.deleteWhere { ScoreBookTable.gameId eq gameId  and (ScoreBookTable.playerId eq playerId)} > 0
         }
 
-        override fun updateScoreBook(scoreBook: PutScoreBook): Map<String, List<Int?>> = transaction {
+        override fun updateScoreBook(scoreBook: PutScoreBook): ScoreBook = transaction {
 
             getGameById(scoreBook.gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
             scoreBook.scoreBook.forEach { (playerId, scoreBookEntry) ->
