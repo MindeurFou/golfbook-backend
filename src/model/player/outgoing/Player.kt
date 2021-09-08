@@ -1,5 +1,6 @@
 package com.mindeurfou.model.player.outgoing
 
+import io.ktor.auth.Principal
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,4 +10,4 @@ data class Player(
     val lastName : String,
     val username : String,
     val drawableResourceId: Int
-)
+) : Principal

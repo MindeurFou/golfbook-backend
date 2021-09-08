@@ -1,9 +1,15 @@
 package com.mindeurfou
 
+import com.auth0.jwt.interfaces.JWTVerifier
+import com.mindeurfou.auth.AuthInjection
 import com.mindeurfou.database.DatabaseProvider
 import com.mindeurfou.database.DatabaseProviderContract
+import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.routes.*
+import com.mindeurfou.service.PlayerService
 import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.features.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
@@ -23,18 +29,37 @@ fun Application.module() {
     install(Koin) {
         modules(
             module { single<DatabaseProviderContract> { DatabaseProvider }},
-            RoutesInjection.koinRoutesModule
+            RoutesInjection.koinRoutesModule,
+            AuthInjection.koinAuthModule
         )
     }
 
     val dbProvider : DatabaseProviderContract by inject()
     dbProvider.init()
 
+    val playerService: PlayerService by inject()
+    val myVerifier: JWTVerifier by inject()
+
+    install (Authentication) {
+        jwt("auth-jwt") {
+            verifier(myVerifier)
+            realm = "Golfbook API"
+            validate { credentials ->
+                credentials.payload.getClaim("playerId").asInt()?.let { playerId ->
+                    playerService.getPlayer(playerId)
+                }
+            }
+        }
+    }
+
     install(Routing) {
-        playerRouting()
-        courseRouting()
-        gameRouting()
-        tournamentRouting()
+        registrationRouting()
+        authenticate("auth-jwt") {
+            playerRouting()
+            courseRouting()
+            gameRouting()
+            tournamentRouting()
+        }
     }
 
 }

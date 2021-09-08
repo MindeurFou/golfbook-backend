@@ -53,18 +53,6 @@ fun Route.playerRouting() {
 
         }
 
-        post {
-            val postPlayerBody = call.receive<PostPlayerBody>()
-            try {
-                val player = playerService.addNewPlayer(postPlayerBody)
-                call.respond(player)
-            } catch(e: SerializationException) {
-                call.respond(HttpStatusCode.BadRequest)
-            } catch (gBException: GBException) {
-                call.respondText(gBException.message, status = GBHttpStatusCode.valueA)
-            }
-        }
-
         get {
             val username = call.parameters["username"]
 
