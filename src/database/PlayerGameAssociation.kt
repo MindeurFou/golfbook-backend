@@ -7,5 +7,5 @@ import org.jetbrains.exposed.sql.Table
 object PlayerGameAssociation : Table(){
     val playerId = reference("playerId", PlayerTable)
     val gameId = reference("gameId", GameTable)
-    override val primaryKey = PrimaryKey(playerId, gameId, name = "id")
+    override val primaryKey = PrimaryKey(playerId, gameId, name = "id", )
 }

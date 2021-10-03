@@ -6,22 +6,44 @@ import com.mindeurfou.database.player.PlayerTable
 import com.mindeurfou.model.player.incoming.PutPlayerBody
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.PasswordManager
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.koin.dsl.module
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PlayerDaoTest : BaseDaoTest() {
 
     private val playerDao: PlayerDao = PlayerDaoImpl()
+    private val passwordManager: PasswordManager = mockk()
+
+    @BeforeEach
+    override fun setup() {
+        super.setup()
+        koinModules = module {
+            single { passwordManager }
+        }
+    }
+
+    @BeforeEach
+    fun clearMocks() {
+        clearMocks(passwordManager)
+    }
 
     @Test
-    fun `insert and retrieve player`() {
+    fun `insert and retrieve player`() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
+
             createSchema()
             val validPostPlayer = DbInstrumentation.validPostPlayerBody()
             val playerId = playerDao.insertPlayer(validPostPlayer)
@@ -48,7 +70,8 @@ class PlayerDaoTest : BaseDaoTest() {
     }
 
     @Test
-    fun `update player`() {
+    fun `update player`() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             val unValidPutPlayer = PutPlayerBody(4, "luffy91230", 34234253)
@@ -78,7 +101,8 @@ class PlayerDaoTest : BaseDaoTest() {
     }
 
     @Test
-    fun deletePlayer() {
+    fun deletePlayer() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             var result = playerDao.deletePlayer(1)
@@ -92,7 +116,8 @@ class PlayerDaoTest : BaseDaoTest() {
     }
 
     @Test
-    fun getPlayerByUsername() {
+    fun getPlayerByUsername() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             var player = playerDao.getPlayerByUsername("non present name")

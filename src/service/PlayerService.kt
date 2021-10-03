@@ -32,6 +32,8 @@ class PlayerService {
 
 	fun getPlayerByUsername(username: String): Player? = playerDao.getPlayerByUsername(username)
 
+	fun getPlayerPassword(playerId: Int): String? = playerDao.getPlayerPassword(playerId)
+
 	fun getPlayers(filters: Map<String, String>? = null, limit: Int?, offset: Int?): List<Player> {
         val actualLimit = limit ?: GET_PLAYER_LIST_DEFAULT_LIMIT
 		val actualOffset = offset ?: GET_PLAYER_LIST_DEFAULT_OFFSET

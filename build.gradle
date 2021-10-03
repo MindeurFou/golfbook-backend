@@ -60,6 +60,8 @@ dependencies {
 
     implementation "com.zaxxer:HikariCP:$hikariCP_version"
 
+    implementation 'org.mindrot:jbcrypt:0.4'
+
     implementation "org.postgresql:postgresql:$jdbcpostgresql_version"
 
     testImplementation "io.ktor:ktor-gson:$ktor_version"

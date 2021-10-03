@@ -1,7 +1,9 @@
 package routes
 
+import com.mindeurfou.auth.JWTConfig
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.routes.playerRouting
+import com.mindeurfou.routes.registrationRouting
 import com.mindeurfou.service.PlayerService
 import io.ktor.application.install
 import io.ktor.http.*
@@ -30,6 +32,7 @@ class PlayerRoutingTest : BaseRoutingTest() {
         moduleList = {
             install(Routing) {
                 playerRouting()
+                registrationRouting()
             }
         }
     }
@@ -51,8 +54,9 @@ class PlayerRoutingTest : BaseRoutingTest() {
             setBody(body)
         }.apply {
             assertEquals(HttpStatusCode.OK, response.status())
-            val responseBody = response.parseBody(Player::class.java)
-            assertEquals(player, responseBody)
+            val responseBody = response.content
+            val tokenMap = "{\"token\":\"${JWTConfig.createToken(playerId)}\"}"
+            assertEquals(tokenMap, responseBody)
         }
     }
 

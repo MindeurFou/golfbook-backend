@@ -11,6 +11,7 @@ object DbInstrumentation {
         "tanguy",
         "pouriel",
         "MindeurFou",
+        "testPassword",
         247933224
     )
 
@@ -18,6 +19,7 @@ object DbInstrumentation {
         "jay",
         "adams",
         "LeKing",
+        "testtestpwd",
         272939308
     )
 

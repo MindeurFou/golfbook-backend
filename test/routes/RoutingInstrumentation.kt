@@ -22,7 +22,8 @@ object RoutingInstrumentation {
         name = "Tanguy",
         lastName = "Pouriel",
         username = "MindeurFou",
-        drawableResourceId = 2423429
+        password = "mypassword",
+        drawableResourceId = 2423429,
     )
 
     fun putPlayerBody(id: Int) = PutPlayerBody(

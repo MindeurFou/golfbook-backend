@@ -4,16 +4,29 @@ import com.mindeurfou.utils.GBException
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.model.player.incoming.PostPlayerBody
 import com.mindeurfou.model.player.incoming.PutPlayerBody
+import com.mindeurfou.utils.PasswordManager
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class PlayerDaoImpl : PlayerDao {
+class PlayerDaoImpl : PlayerDao, KoinComponent {
+
+    private val passwordManager by inject<PasswordManager>()
 
     override fun getPlayerById(playerId: Int): Player? = transaction {
         PlayerTable.select {
             (PlayerTable.id eq playerId)
         }.mapNotNull {
             PlayerDbMapper.mapFromEntity(it)
+        }.singleOrNull()
+    }
+
+    override fun getPlayerPassword(playerId: Int): String? = transaction {
+        PlayerTable.select {
+            (PlayerTable.id eq playerId)
+        }.mapNotNull {
+            it[PlayerTable.password]
         }.singleOrNull()
     }
 
@@ -30,6 +43,7 @@ class PlayerDaoImpl : PlayerDao {
             it[name] = postPlayer.name
             it[lastName] = postPlayer.lastName
             it[username] = postPlayer.username
+            it[password] = passwordManager.encryptPassword(postPlayer.password)
             it[drawableResourceId] = postPlayer.drawableResourceId
         }.value
     }

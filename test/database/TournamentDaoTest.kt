@@ -13,11 +13,16 @@ import com.mindeurfou.model.tournament.incoming.PutTournamentBody
 import com.mindeurfou.model.tournament.outgoing.TournamentDetails
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.PasswordManager
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.koin.dsl.module
 import java.time.LocalDate
 import kotlin.test.assertEquals
 
@@ -25,6 +30,20 @@ class TournamentDaoTest : BaseDaoTest(){
 
     private val tournamentDao: TournamentDao = TournamentDaoImpl()
     private val playerDao: PlayerDao = PlayerDaoImpl()
+    private val passwordManager: PasswordManager = mockk()
+
+    @BeforeEach
+    override fun setup() {
+        super.setup()
+        koinModules = module {
+            single { passwordManager }
+        }
+    }
+
+    @BeforeEach
+    fun clearMocks() {
+        io.mockk.clearMocks(passwordManager)
+    }
 
     @Test
     fun insertTournament() {
@@ -103,7 +122,8 @@ class TournamentDaoTest : BaseDaoTest(){
     //test getTournaments ?
 
     @Test
-    fun addTournamentPlayer() {
+    fun addTournamentPlayer() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             val validPostTournamentBody = PostTournamentBody("tournoi du sale")
@@ -126,7 +146,8 @@ class TournamentDaoTest : BaseDaoTest(){
     }
 
     @Test
-    fun deleteTournamentPlayer() {
+    fun deleteTournamentPlayer() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             
@@ -147,7 +168,8 @@ class TournamentDaoTest : BaseDaoTest(){
 
 
     @Test
-    fun updateTournamentLeaderBoard() {
+    fun updateTournamentLeaderBoard() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             val unValidPutLeaderBoardBody = PutLeaderBoardBody(1, mapOf("name" to 3))

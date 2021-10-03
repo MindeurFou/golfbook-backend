@@ -7,6 +7,7 @@ import com.mindeurfou.database.DatabaseProviderContract
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.routes.*
 import com.mindeurfou.service.PlayerService
+import com.mindeurfou.utils.PasswordManager
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -29,6 +30,7 @@ fun Application.module() {
     install(Koin) {
         modules(
             module { single<DatabaseProviderContract> { DatabaseProvider }},
+            module { single { PasswordManager } },
             RoutesInjection.koinRoutesModule,
             AuthInjection.koinAuthModule
         )

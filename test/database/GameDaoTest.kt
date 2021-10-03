@@ -23,11 +23,16 @@ import com.mindeurfou.model.game.outgoing.ScoreBook
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.model.tournament.incoming.PostTournamentBody
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.PasswordManager
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.koin.dsl.module
 import java.time.LocalDate
 import kotlin.test.assertEquals
 
@@ -37,8 +42,24 @@ class GameDaoTest : BaseDaoTest(){
     private val courseDao : CourseDao = CourseDaoImpl()
     private val playerDao: PlayerDao = PlayerDaoImpl()
 
+    private val passwordManager: PasswordManager = mockk()
+
+    @BeforeEach
+    override fun setup() {
+        super.setup()
+        koinModules = module {
+            single { passwordManager }
+        }
+    }
+
+    @BeforeEach
+    fun clearMocks() {
+        io.mockk.clearMocks(passwordManager)
+    }
+
     @Test
-    fun `insert and retrieve game`() {
+    fun `insert and retrieve game`() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             SchemaUtils.create(TournamentTable)
@@ -46,7 +67,7 @@ class GameDaoTest : BaseDaoTest(){
             val validPostPlayerBody = DbInstrumentation.validPostPlayerBody()
 
             val courseId = courseDao.insertCourse(validCourseBody)
-            val playerId = playerDao.insertPlayer(validPostPlayerBody)
+            playerDao.insertPlayer(validPostPlayerBody)
 
             val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
@@ -84,7 +105,8 @@ class GameDaoTest : BaseDaoTest(){
 
 
     @Test
-    fun updateGame() {
+    fun updateGame() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
 
@@ -99,7 +121,7 @@ class GameDaoTest : BaseDaoTest(){
             }
 
             val validPostPlayerBody = DbInstrumentation.validPostPlayerBody()
-            val playerId = playerDao.insertPlayer(validPostPlayerBody)
+            playerDao.insertPlayer(validPostPlayerBody)
             val validPostGameBody = PostGameBody(courseId = courseId)
             val gameId = gameDao.insertGame(validPostGameBody)
 
@@ -119,7 +141,8 @@ class GameDaoTest : BaseDaoTest(){
     }
 
     @Test
-    fun deleteGame() {
+    fun deleteGame() = withBaseTestApplication{
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             var result = gameDao.deleteGame(1)
@@ -177,7 +200,8 @@ class GameDaoTest : BaseDaoTest(){
     }
 
     @Test
-    fun getGameByTournamentId() {
+    fun getGameByTournamentId() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             SchemaUtils.create(TournamentTable)
@@ -187,7 +211,6 @@ class GameDaoTest : BaseDaoTest(){
             val otherValidPostPlayer = DbInstrumentation.otherValidPostPlayerBody()
 
             val courseId = courseDao.insertCourse(validCourseBody)
-            val playerId = playerDao.insertPlayer(validPostPlayerBody)
             playerDao.insertPlayer(otherValidPostPlayer)
 
             val tournamentId = TournamentDaoImpl().insertTournament(PostTournamentBody("Tournoi de ouf"))
@@ -217,7 +240,8 @@ class GameDaoTest : BaseDaoTest(){
     }
 
     @Test
-    fun addGamePlayer() {
+    fun addGamePlayer() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             val validCourseBody = DbInstrumentation.validPostCourseBody()
@@ -273,7 +297,8 @@ class GameDaoTest : BaseDaoTest(){
     }
 
     @Test
-    fun deleteGamePlayer() {
+fun deleteGamePlayer() = withBaseTestApplication {
+        every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
             val validCourseBody = DbInstrumentation.validPostCourseBody()

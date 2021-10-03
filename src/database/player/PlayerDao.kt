@@ -6,6 +6,7 @@ import com.mindeurfou.model.player.incoming.PutPlayerBody
 
 interface PlayerDao {
     fun getPlayerById(playerId: Int): Player?
+    fun getPlayerPassword(playerId: Int): String?
     fun getPlayers(filters: Map<String, String>?, limit: Int, offset: Int): List<Player>
     fun insertPlayer(postPlayer: PostPlayerBody): Int
     fun updatePlayer(putPlayer: PutPlayerBody): Player

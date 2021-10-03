@@ -32,6 +32,19 @@ object DatabaseProvider : DatabaseProviderContract {
         }
 
     }
+
+    private fun wipeOutDatabase() {
+        transaction {
+            SchemaUtils.drop(PlayerGameAssociation)
+            SchemaUtils.drop(LeaderBoardTable)
+            SchemaUtils.drop(ScoreBookTable)
+            SchemaUtils.drop(HoleTable)
+            SchemaUtils.drop(GameTable)
+            SchemaUtils.drop(CourseTable)
+            SchemaUtils.drop(TournamentTable)
+            SchemaUtils.drop(PlayerTable)
+        }
+    }
 }
 
 interface DatabaseProviderContract {

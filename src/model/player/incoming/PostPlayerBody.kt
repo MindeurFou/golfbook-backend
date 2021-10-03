@@ -7,5 +7,6 @@ data class PostPlayerBody(
     val name: String,
     val lastName : String,
     val username: String,
+    val password: String,
     val drawableResourceId : Int
 )
