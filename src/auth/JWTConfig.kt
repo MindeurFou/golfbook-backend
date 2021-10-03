@@ -23,6 +23,7 @@ object JWTConfig {
     fun createToken(playerId: Int) = JWT.create()
         .withSubject("authentication")
         .withIssuer(issuer)
+        .withAudience(audience)
         .withClaim("playerId", playerId)
         .withExpiresAt(Date(System.currentTimeMillis() + validity))
         .sign(algorithm)
