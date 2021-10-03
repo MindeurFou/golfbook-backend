@@ -5,6 +5,7 @@ import com.mindeurfou.model.player.incoming.PutPlayerBody
 import com.mindeurfou.service.PlayerService
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.utils.GBHttpStatusCode
+import com.mindeurfou.utils.addCacheHeader
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -66,8 +67,12 @@ fun Route.playerRouting() {
                 val players = playerService.getPlayers(limit = limit, offset = offset)
                 if (players.isEmpty())
                     call.respond(HttpStatusCode.NoContent)
-                else
-                    call.respond(players)
+                else {
+                    with(call) {
+                        addCacheHeader()
+                        respond(players)
+                    }
+                }
             }
         }
 

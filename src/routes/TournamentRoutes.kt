@@ -5,6 +5,7 @@ import com.mindeurfou.model.tournament.incoming.PutTournamentBody
 import com.mindeurfou.service.TournamentService
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.utils.GBHttpStatusCode
+import com.mindeurfou.utils.addCacheHeader
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -25,7 +26,10 @@ fun Route.tournamentRouting() {
                 val tournamentId = call.parameters["id"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
                 try {
                     val tournamentDetails = tournamentService.getTournament(tournamentId)
-                    call.respond(tournamentDetails)
+                    with(call) {
+                        addCacheHeader()
+                        respond(tournamentDetails)
+                    }
                 } catch (e: GBException) {
                     return@get call.respond(HttpStatusCode.NotFound)
                 }
@@ -59,7 +63,10 @@ fun Route.tournamentRouting() {
             val limit = call.parameters["limit"]?.toInt()
             val offset = call.parameters["offset"]?.toInt()
             tournamentService.getTournaments(null, limit, offset)?.let {
-                call.respond(it)
+                with(call) {
+                    addCacheHeader()
+                    respond(it)
+                }
             } ?: return@get call.respond(HttpStatusCode.NoContent)
         }
 

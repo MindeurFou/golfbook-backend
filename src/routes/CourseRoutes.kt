@@ -4,6 +4,7 @@ import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.service.CourseService
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.addCacheHeader
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -68,8 +69,12 @@ fun Route.courseRouting() {
             val courses = courseService.getCourses(limit = limit, offset = offset)
             if (courses.isEmpty())
                 call.respond(HttpStatusCode.NoContent)
-            else
-                call.respond(courses)
+            else {
+                with(call) {
+                    addCacheHeader()
+                    respond(courses)
+                }
+            }
         }
     }
 

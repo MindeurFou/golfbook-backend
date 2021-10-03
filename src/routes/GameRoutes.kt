@@ -7,6 +7,7 @@ import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.service.GameService
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.utils.GBHttpStatusCode
+import com.mindeurfou.utils.addCacheHeader
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -94,7 +95,10 @@ fun Route.gameRouting() {
             val tournamentId = call.parameters["tournamentId"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
             val games = gameService.getGameByTournamentId(tournamentId)
             games?.let {
-                call.respond(it)
+                with(call) {
+                    addCacheHeader()
+                    call.respond(it)
+                }
             } ?: return@get call.respond(HttpStatusCode.NoContent)
         }
 

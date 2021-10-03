@@ -21,7 +21,6 @@ fun Route.registrationRouting() {
     post("/login") {
         val credentials = call.receive<Credentials>()
         playerService.getPlayerByUsername(credentials.username)?.let { player ->
-
             if (credentials.password.length >= 5) {
                 val token = JWTConfig.createToken(player.id)
                 call.respond(mapOf("token" to token))
