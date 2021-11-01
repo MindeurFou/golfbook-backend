@@ -26,7 +26,10 @@ fun Route.registrationRouting() {
             val password = playerService.getPlayerPassword(player.id)!!
             if (passwordManager.validatePassword(credentials.password, password)) {
                 val token = JWTConfig.createToken(player.id)
-                call.respond(mapOf("token" to token))
+                call.respond(mapOf(
+                    "token" to token,
+                    "playerId" to player.id.toString()
+                ))
             } else
                 call.respond(HttpStatusCode.Unauthorized)
 
@@ -38,7 +41,10 @@ fun Route.registrationRouting() {
         try {
             val player = playerService.addNewPlayer(postPlayerBody)
             val token = JWTConfig.createToken(player.id)
-            call.respond(mapOf("token" to token))
+            call.respond(mapOf(
+                "token" to token,
+                "playerId" to player.id.toString()
+            ))
         } catch(e: SerializationException) {
             call.respond(HttpStatusCode.BadRequest)
         } catch (gBException: GBException) {

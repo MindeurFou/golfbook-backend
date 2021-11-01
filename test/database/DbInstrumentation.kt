@@ -52,6 +52,7 @@ object DbInstrumentation {
         "Parcours du test",
         9,
         36,
+        4,
         validPostHoleBodies()
     )
 

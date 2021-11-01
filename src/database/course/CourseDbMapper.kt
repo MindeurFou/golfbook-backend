@@ -12,6 +12,7 @@ object CourseDbMapper : DatabaseMapper<ResultRow, Course> {
         numberOfHOles = resultRow[CourseTable.numberOfHoles],
         par = resultRow[CourseTable.par],
         gamesPlayed = resultRow[CourseTable.gamesPlayed],
+        stars = 4, // TODO
         createdAt = resultRow[CourseTable.createdAt]
     )
 }

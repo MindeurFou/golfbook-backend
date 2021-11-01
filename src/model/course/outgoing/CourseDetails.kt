@@ -14,6 +14,7 @@ data class CourseDetails(
     val gamesPlayed : Int,
     @Serializable(with = DateAsLongSerializer::class)
     val createdAt : LocalDate,
+    val stars: Int,
     val holes : List<Hole>
 )
 
@@ -25,6 +26,7 @@ object CourseDetailsMapper {
         par = course.par,
         gamesPlayed = course.gamesPlayed,
         createdAt = course.createdAt,
+        stars = course.stars,
         holes = holes
     )
 }

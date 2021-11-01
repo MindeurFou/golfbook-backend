@@ -39,6 +39,7 @@ class CourseDaoTest : BaseDaoTest(){
                     validCourse.par,
                     0,
                     LocalDate.now(),
+                    4,
                     DbInstrumentation.listOfHoles()
                 )
             )
@@ -68,6 +69,7 @@ class CourseDaoTest : BaseDaoTest(){
                         validPutCourseBody.numberOfHOles,
                         validPutCourseBody.par,
                         10,
+                        4,
                         DbInstrumentation.listOfHoles()
                     )
                 )
@@ -82,6 +84,7 @@ class CourseDaoTest : BaseDaoTest(){
                     validPutCourseBody.numberOfHOles,
                     validPutCourseBody.par,
                     10,
+                    4,
                     DbInstrumentation.listOfHoles()
                 )
             )
@@ -94,6 +97,7 @@ class CourseDaoTest : BaseDaoTest(){
                     validPutCourseBody.par,
                     10,
                     LocalDate.now(),
+                    4,
                     DbInstrumentation.listOfHoles()
                 )
             )
@@ -135,6 +139,7 @@ class CourseDaoTest : BaseDaoTest(){
                     validPostCourseBody.numberOfHOles,
                     validPostCourseBody.par,
                     0,
+                    4,
                     LocalDate.now()
                 )
             )
@@ -163,6 +168,7 @@ class CourseDaoTest : BaseDaoTest(){
                     validCourseBody.numberOfHOles,
                     validCourseBody.par,
                     0,
+                    4,
                     LocalDate.now()
                 )
             )
@@ -173,6 +179,7 @@ class CourseDaoTest : BaseDaoTest(){
                     validCourseBody.numberOfHOles,
                     validCourseBody.par,
                     0,
+                    4,
                     LocalDate.now()
                 )
             )

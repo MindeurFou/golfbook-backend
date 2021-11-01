@@ -8,6 +8,7 @@ data class PostCourseBody(
     val name : String,
     val numberOfHOles : Int,
     val par : Int,
+    val stars : Int,
     val holes : List<PostHoleBody>
 )
 

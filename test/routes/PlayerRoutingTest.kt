@@ -55,7 +55,7 @@ class PlayerRoutingTest : BaseRoutingTest() {
         }.apply {
             assertEquals(HttpStatusCode.OK, response.status())
             val responseBody = response.content
-            val tokenMap = "{\"token\":\"${JWTConfig.createToken(playerId)}\"}"
+            val tokenMap = "{\"token\":\"${JWTConfig.createToken(playerId)}\",\"playerId\":\"$playerId\"}"
             assertEquals(tokenMap, responseBody)
         }
     }

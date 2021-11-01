@@ -171,6 +171,7 @@ class GameDaoTest : BaseDaoTest(){
                     validCourseBody.par,
                     0,
                     LocalDate.now(),
+                    4,
                     DbInstrumentation.listOfHoles()
                 )
             )
