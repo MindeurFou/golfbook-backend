@@ -1,12 +1,13 @@
 package com.mindeurfou.routes
 
-import com.mindeurfou.model.player.incoming.PostPlayerBody
 import com.mindeurfou.model.player.incoming.PutPlayerBody
+import com.mindeurfou.model.player.outgoing.GetPlayersResponse
+import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.service.PlayerService
 import com.mindeurfou.utils.GBException
-import com.mindeurfou.utils.GBHttpStatusCode
 import com.mindeurfou.utils.addCacheHeader
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -65,12 +66,14 @@ fun Route.playerRouting() {
                 val limit = call.parameters["limit"]?.toInt()
                 val offset = call.parameters["offset"]?.toInt()
                 val players = playerService.getPlayers(limit = limit, offset = offset)
+                val selfPlayer = call.principal<Player>()!!
+                val filteredPlayers = players.filter { it.id != selfPlayer.id }
                 if (players.isEmpty())
                     call.respond(HttpStatusCode.NoContent)
                 else {
                     with(call) {
                         addCacheHeader()
-                        respond(players)
+                        respond(GetPlayersResponse(selfPlayer, filteredPlayers))
                     }
                 }
             }
