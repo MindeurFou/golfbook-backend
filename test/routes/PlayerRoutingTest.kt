@@ -93,7 +93,21 @@ class PlayerRoutingTest : BaseRoutingTest() {
         }
     }
 
-    @Test
+//    @Test
+//    fun `GET players`() = withBaseTestApplication {
+//        val getPlayerResponse = RoutingInstrumentation.getPlayerResponse()
+//        every { playerService.getPlayers(any(), any(), any()) } returns listOf()
+//
+//        handleRequest(HttpMethod.Get, "/player") {
+//            addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+//        }.apply {
+//            assertEquals(HttpStatusCode.OK, response.status())
+//            val responseBody = response.parseBody(GetPlayerResponse::class.java)
+//            assertEquals(getPlayerResponse, responseBody)
+//        }
+//    }
+
+        @Test
     fun `DELETE player`() = withBaseTestApplication {
         every { playerService.deletePlayer(any()) } returns true
 

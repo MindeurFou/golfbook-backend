@@ -9,5 +9,6 @@ data class Player(
     val name: String,
     val lastName : String,
     val username : String,
-    val drawableResourceId: Int
+    val avatarId: Int,
+    val realUser: Boolean
 ) : Principal

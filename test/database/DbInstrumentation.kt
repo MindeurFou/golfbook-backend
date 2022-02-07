@@ -2,7 +2,7 @@ package database
 
 import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.hole.incoming.PostHoleBody
-import com.mindeurfou.model.hole.outgoing.Hole
+import com.mindeurfou.model.hole.local.Hole
 import com.mindeurfou.model.player.incoming.PostPlayerBody
 
 object DbInstrumentation {

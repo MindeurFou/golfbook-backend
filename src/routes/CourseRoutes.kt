@@ -66,6 +66,18 @@ fun Route.courseRouting() {
         get {
             val limit = call.parameters["limit"]?.toInt()
             val offset = call.parameters["offset"]?.toInt()
+            val courseName = call.parameters["name"]
+
+            courseName?.let {
+                try {
+                    val course = courseService.getCourseByName(courseName)
+                    call.respond(course)
+                } catch (e: GBException) {
+                    call.respond(HttpStatusCode.NotFound)
+                }
+                return@get
+            }
+
             val courses = courseService.getCourses(limit = limit, offset = offset)
             if (courses.isEmpty())
                 call.respond(HttpStatusCode.NoContent)

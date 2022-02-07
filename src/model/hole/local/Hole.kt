@@ -1,9 +1,10 @@
-package com.mindeurfou.model.hole.incoming
+package com.mindeurfou.model.hole.local
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PostHoleBody(
+data class Hole(
+    val id : Int,
     val holeNumber : Int,
     val par : Int
 )

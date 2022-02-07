@@ -1,15 +1,13 @@
 package routes
 
 import com.mindeurfou.model.game.incoming.PatchGameBody
-import com.mindeurfou.model.game.outgoing.GameDetails
-import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.local.GameDetails
 import com.mindeurfou.routes.*
 import com.mindeurfou.service.GameService
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
-import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeAll
@@ -57,6 +55,20 @@ class GameRoutingTest : BaseRoutingTest() {
             assertEquals(gameDetails, responseBody)
         }
     }
+
+//    @Test
+//    fun getGames() = withBaseTestApplication {
+//        val games = RoutingInstrumentation.games()
+//        every { gameService.getGameByTournamentId(1) } returns games
+//
+//        handleRequest(HttpMethod.Get, "/game?tournamentId=1") {
+//            addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+//        }.apply {
+//            assertEquals(HttpStatusCode.OK, response.status())
+//            val responseBody = response.parseBodyList(Game::class.java)
+//            assertEquals(games[0].name, responseBody[0].name)
+//        }
+//    }
 
     @Test
     fun `PUT game = modify game state or course`() = withBaseTestApplication {

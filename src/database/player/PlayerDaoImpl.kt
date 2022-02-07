@@ -44,15 +44,18 @@ class PlayerDaoImpl : PlayerDao, KoinComponent {
             it[lastName] = postPlayer.lastName
             it[username] = postPlayer.username
             it[password] = passwordManager.encryptPassword(postPlayer.password)
-            it[drawableResourceId] = postPlayer.drawableResourceId
+            it[avatarId] = postPlayer.avatarId
+            it[realUser] = postPlayer.realUser
         }.value
     }
 
     override fun updatePlayer(putPlayer: PutPlayerBody): Player {
         transaction {
             val updatedColumns = PlayerTable.update( {PlayerTable.id eq putPlayer.id} ) {
+                it[name] = putPlayer.name
+                it[lastName] = putPlayer.lastName
                 it[username] = putPlayer.username
-                it[drawableResourceId] = putPlayer.drawableResourceId
+                it[avatarId] = putPlayer.avatarId
             }
             if (updatedColumns == 0) throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
         }

@@ -1,6 +1,6 @@
 package com.mindeurfou.model.course.incoming
 
-import com.mindeurfou.model.hole.outgoing.Hole
+import com.mindeurfou.model.hole.local.Hole
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,7 +9,6 @@ data class PutCourseBody(
     val name : String,
     val numberOfHoles : Int,
     val par : Int,
-    val gamesPlayed : Int,
     val stars : Int,
     val holes : List<Hole>
 )

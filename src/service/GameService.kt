@@ -6,10 +6,11 @@ import com.mindeurfou.database.game.GameDaoImpl
 import com.mindeurfou.database.tournament.TournamentDao
 import com.mindeurfou.database.tournament.TournamentDaoImpl
 import com.mindeurfou.model.GBState
-import com.mindeurfou.model.game.PutScoreBook
-import com.mindeurfou.model.game.outgoing.GameDetails
+import com.mindeurfou.model.game.GameNetworkMapper
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
+import com.mindeurfou.model.game.outgoing.Game
+import com.mindeurfou.model.game.outgoing.GameDetailsNetworkEntity
 import com.mindeurfou.model.game.outgoing.ScoreBook
 
 class GameService : ServiceNotification() {
@@ -19,32 +20,32 @@ class GameService : ServiceNotification() {
 
 	// CRUD classic methods
 
-	fun getGame(gameId: Int): GameDetails {
-		return gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+	fun getGame(gameId: Int): GameDetailsNetworkEntity {
+		return gameDao.getGameById(gameId)?.let { GameNetworkMapper.toGameDetailsNetworkEntity(it) } ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 	}
 
-	fun addNewGame(postGame: PostGameBody) : GameDetails {
+	fun addNewGame(postGame: PostGameBody) : GameDetailsNetworkEntity {
 
-		postGame.tournamentId?.let {
-			val tournamentDetails = tournamentDao.getTournamentById(it) ?: throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
-            if (tournamentDetails.state == GBState.DONE) throw GBException(GBException.TOURNAMENT_DONE_MESSAGE)
-		}
+//		postGame.tournamentId?.let {
+//			val tournamentDetails = tournamentDao.getTournamentById(it) ?: throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
+//            if (tournamentDetails.state == GBState.DONE) throw GBException(GBException.TOURNAMENT_DONE_MESSAGE)
+//		}
 
 		val gameId = gameDao.insertGame(postGame)
-		return gameDao.getGameById(gameId)!!
+		return GameNetworkMapper.toGameDetailsNetworkEntity(gameDao.getGameById(gameId)!!)
 	}
 
-	fun updateGame(putGame: PutGameBody): GameDetails {
+	fun updateGame(putGame: PutGameBody): GameDetailsNetworkEntity {
 		val gameDetails = gameDao.getGameById(putGame.id) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 
 		when (putGame.state) {
 			GBState.PENDING -> {
-				if (gameDetails.state == GBState.WAITING) {
+				if (gameDetails.state == GBState.INIT) {
 					// process change to pending
 					// (notify observers)
 				} else if (gameDetails.state == GBState.DONE) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 			}
-			GBState.WAITING -> {
+			GBState.INIT -> {
 				if (gameDetails.state == GBState.PENDING) {
 					// rollback to waiting
 				} else if (gameDetails.state == GBState.DONE) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
@@ -52,11 +53,12 @@ class GameService : ServiceNotification() {
 			GBState.DONE -> {
 				if (gameDetails.state == GBState.PENDING) {
 					// check context
-				} else if (gameDetails.state == GBState.WAITING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+					// TODO update course.gamesPlayed
+				} else if (gameDetails.state == GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 			}
 		}
 
-		return gameDao.updateGame(putGame)
+		return GameNetworkMapper.toGameDetailsNetworkEntity(gameDao.updateGame(putGame))
 	}
 
 	fun deleteGame(gameId: Int): Boolean = gameDao.deleteGame(gameId)
@@ -65,13 +67,13 @@ class GameService : ServiceNotification() {
 		tournamentId: Int,
 		limit : Int = GET_GAMES_DEFAULT_SIZE,
 		offset : Int = GET_GAMES_DEFAULT_OFFSET
-	) = gameDao.getGamesByTournamentId(tournamentId, limit, offset)
+	) = {} // gameDao.getGamesByTournamentId(tournamentId, limit, offset)
 
 	// in-game specific operations
 
 	fun addGamePlayer(gameId: Int, playerId: Int) {
 		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
-        if (gameDetails.state != GBState.WAITING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+        if (gameDetails.state != GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
 		val playerInGame = gameDetails.players.any { it.id == playerId }
 		val gameIsFull = gameDetails.players.size >= 4
@@ -82,7 +84,7 @@ class GameService : ServiceNotification() {
 
 	fun deleteGamePlayer(gameId: Int, playerId: Int) {
 		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
-		if (gameDetails.state != GBState.WAITING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+		if (gameDetails.state != GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
 		val playerInGame = gameDetails.players.any { it.id == playerId }
 
@@ -90,18 +92,21 @@ class GameService : ServiceNotification() {
 			gameDao.deleteGamePlayer(gameId, playerId)
 	}
 
-	fun updateScoreBook(putScoreBook: PutScoreBook): ScoreBook {
-		val gameDetails = gameDao.getGameById(putScoreBook.gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+	fun updateScoreBook(gameId: Int, scoreBook: ScoreBook): ScoreBook {
+		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 		if (gameDetails.state != GBState.PENDING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
-		return gameDao.updateScoreBook(putScoreBook)
+		return gameDao.updateScoreBook(scoreBook)
 	}
 
 	fun getScoreBookByGameId(gameId: Int): ScoreBook {
 		return gameDao.getScoreBookByGameId(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 	}
 
-	companion object {
+	fun getGameByPlayerId(playerId: Int): List<Game>? =
+		gameDao.getGamesByPlayerId(playerId)
+
+    companion object {
 		const val GET_GAMES_DEFAULT_SIZE = 10
 		const val GET_GAMES_DEFAULT_OFFSET = 0
 	}

@@ -25,7 +25,8 @@ class CourseDaoImpl : CourseDao {
             HoleTable.courseId eq courseId
         }.mapNotNull { resultRow ->
             HoleDbMapper.mapFromEntity(resultRow)
-        }
+        }.sortedBy { it.holeNumber }
+
         CourseDetailsMapper.mapToCourseDetails(course, holes)
     }
 
@@ -38,10 +39,12 @@ class CourseDaoImpl : CourseDao {
                 it[gamesPlayed] = 0
             }.value
 
+            var index = 1
             HoleTable.batchInsert(postCourse.holes) { hole ->
                 this[HoleTable.courseId] = courseId
-                this[HoleTable.holeNumber] = hole.holeNumber
-                this[HoleTable.par] = hole.par
+                this[HoleTable.holeNumber] = index
+                this[HoleTable.par] = hole
+                index++
             }
             courseId
         }
@@ -53,7 +56,6 @@ class CourseDaoImpl : CourseDao {
                 it[name] = putCourse.name
                 it[numberOfHoles] = putCourse.numberOfHoles
                 it[par] = putCourse.par
-                it[gamesPlayed] = putCourse.gamesPlayed
             }
 
             if (updatedColumns == 0) throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
@@ -61,7 +63,6 @@ class CourseDaoImpl : CourseDao {
             putCourse.holes.forEach { hole ->
                 HoleTable.update( {HoleTable.id eq hole.id } ) {
                     it[par] = hole.par
-                    it[holeNumber] = hole.holeNumber
                 }
             }
 

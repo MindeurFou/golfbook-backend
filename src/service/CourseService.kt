@@ -2,10 +2,12 @@ package com.mindeurfou.service
 
 import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
+import com.mindeurfou.model.course.CourseNetworkMapper
 import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.model.course.outgoing.Course
 import com.mindeurfou.model.course.outgoing.CourseDetails
+import com.mindeurfou.model.course.outgoing.CourseDetailsNetworkEntity
 import com.mindeurfou.utils.GBException
 
 class CourseService {
@@ -17,8 +19,12 @@ class CourseService {
         return courseDao.getCourseById(courseId)!!
     }
 
-    fun getCourse(courseId : Int) : CourseDetails {
-        return courseDao.getCourseById(courseId) ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
+    fun getCourse(courseId : Int) : CourseDetailsNetworkEntity {
+        return courseDao.getCourseById(courseId)?.let { CourseNetworkMapper.toCourseDetailsNetworkMapper(it) } ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
+    }
+
+    fun getCourseByName(name : String) : Course {
+        return courseDao.getCourseByName(name) ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
     }
 
     fun updateCourse(putCourseBody: PutCourseBody): CourseDetails {

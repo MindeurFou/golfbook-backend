@@ -12,6 +12,7 @@ object PlayerDbMapper : DatabaseMapper<ResultRow, Player> {
             name = resultRow[PlayerTable.name],
             lastName = resultRow[PlayerTable.lastName],
             username = resultRow[PlayerTable.username],
-            drawableResourceId = resultRow[PlayerTable.drawableResourceId]
+            avatarId = resultRow[PlayerTable.avatarId],
+            realUser = resultRow[PlayerTable.realUser]
         )
 }

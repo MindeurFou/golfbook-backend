@@ -39,12 +39,23 @@ fun Route.registrationRouting() {
     post("/player") {
         val postPlayerBody = call.receive<PostPlayerBody>()
         try {
-            val player = playerService.addNewPlayer(postPlayerBody)
-            val token = JWTConfig.createToken(player.id)
-            call.respond(mapOf(
-                "token" to token,
-                "playerId" to player.id.toString()
-            ))
+
+            if (!postPlayerBody.realUser && postPlayerBody.password.isEmpty()) {
+                val player = playerService.addNewPlayer(postPlayerBody)
+                call.respond(mapOf(
+                    "playerId" to player.id.toString()
+                ))
+            }
+            else if (postPlayerBody.realUser && postPlayerBody.password.isNotBlank()) {
+                val player = playerService.addNewPlayer(postPlayerBody)
+                val token = JWTConfig.createToken(player.id)
+                call.respond(mapOf(
+                    "token" to token,
+                    "playerId" to player.id.toString()
+                ))
+            } else
+                call.respond(HttpStatusCode.BadRequest)
+
         } catch(e: SerializationException) {
             call.respond(HttpStatusCode.BadRequest)
         } catch (gBException: GBException) {

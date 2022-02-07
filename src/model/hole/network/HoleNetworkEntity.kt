@@ -1,10 +1,9 @@
-package com.mindeurfou.model.hole.outgoing
+package com.mindeurfou.model.hole.network
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Hole(
+data class HoleNetworkEntity(
     val id : Int,
-    val holeNumber : Int,
     val par : Int
 )

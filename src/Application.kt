@@ -61,6 +61,8 @@ fun Application.module() {
             courseRouting()
             gameRouting()
             tournamentRouting()
+
+//            webSocket("test")
         }
     }
 

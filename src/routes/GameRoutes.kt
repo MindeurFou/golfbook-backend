@@ -1,9 +1,9 @@
 package com.mindeurfou.routes
 
-import com.mindeurfou.model.game.PutScoreBook
 import com.mindeurfou.model.game.incoming.PatchGameBody
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
+import com.mindeurfou.model.game.outgoing.ScoreBook
 import com.mindeurfou.service.GameService
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.utils.GBHttpStatusCode
@@ -36,6 +36,7 @@ fun Route.gameRouting() {
 
             put {
                 try {
+                    // TODO work here ?
                     val putGameBody = call.receive<PutGameBody>()
                     val updatedGame = gameService.updateGame(putGameBody)
                     call.respond(updatedGame)
@@ -92,8 +93,11 @@ fun Route.gameRouting() {
         }
 
         get {
-            val tournamentId = call.parameters["tournamentId"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
-            val games = gameService.getGameByTournamentId(tournamentId)
+            val playerId = call.parameters["playerId"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
+            // val state = call.parameters["state"] TODO
+
+            val games = gameService.getGameByPlayerId(playerId)
+
             games?.let {
                 with(call) {
                     addCacheHeader()
@@ -111,10 +115,10 @@ private fun Route.scoreBookRouting(gameService: GameService) {
     route("scorebook") {
 
         put {
-            call.parameters["id"]?.toInt() ?: return@put call.respond(HttpStatusCode.BadRequest)
+            val gameId = call.parameters["id"]?.toInt() ?: return@put call.respond(HttpStatusCode.BadRequest)
             try {
-                val putScoreBook = call.receive<PutScoreBook>()
-                val updatedScorebook = gameService.updateScoreBook(putScoreBook)
+                val scoreBook = call.receive<ScoreBook>()
+                val updatedScorebook = gameService.updateScoreBook(gameId, scoreBook)
                 call.respond(updatedScorebook)
             } catch (e: SerializationException) {
                 call.respond(HttpStatusCode.BadRequest)

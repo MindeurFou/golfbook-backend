@@ -33,7 +33,7 @@ class TournamentDaoImpl : TournamentDao {
     override fun insertTournament(postTournament: PostTournamentBody): Int = transaction {
         TournamentTable.insertAndGetId {
             it[name] = postTournament.name
-            it[state] = GBState.WAITING
+            it[state] = GBState.INIT
         }.value
     }
 

@@ -28,13 +28,13 @@ class TournamentService : ServiceNotification() {
 			GBState.DONE -> {
 				if (tournamentDetails.state == GBState.PENDING) {
 					// check games are done
-				} else if (tournamentDetails.state == GBState.WAITING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+				} else if (tournamentDetails.state == GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 			}
-			GBState.WAITING -> {
-				if (tournamentDetails.state != GBState.WAITING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+			GBState.INIT -> {
+				if (tournamentDetails.state != GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 			}
             GBState.PENDING -> {
-            	if (tournamentDetails.state == GBState.WAITING) {
+            	if (tournamentDetails.state == GBState.INIT) {
             		// check players are ready
 				} else if (tournamentDetails.state == GBState.DONE) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
             }
@@ -48,7 +48,7 @@ class TournamentService : ServiceNotification() {
 		var deleted = false
 
 		when (tournamentDetails.state) {
-			GBState.WAITING -> {
+			GBState.INIT -> {
 				deleted = tournamentDao.deleteTournament(tournamentId)
 			}
 			GBState.PENDING -> {

@@ -9,7 +9,7 @@ object CourseDbMapper : DatabaseMapper<ResultRow, Course> {
     override fun mapFromEntity(resultRow: ResultRow): Course = Course(
         id = resultRow[CourseTable.id].value,
         name = resultRow[CourseTable.name],
-        numberOfHOles = resultRow[CourseTable.numberOfHoles],
+        numberOfHoles = resultRow[CourseTable.numberOfHoles],
         par = resultRow[CourseTable.par],
         gamesPlayed = resultRow[CourseTable.gamesPlayed],
         stars = 4, // TODO

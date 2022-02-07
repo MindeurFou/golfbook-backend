@@ -1,7 +1,8 @@
 package com.mindeurfou.model
 
 enum class GBState {
-    WAITING,
+    INIT,
+    STARTING,
     PENDING,
     DONE
 }

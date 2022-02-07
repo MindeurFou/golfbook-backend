@@ -1,6 +1,8 @@
 package routes
 
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.mindeurfou.model.game.outgoing.Game
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.serialization.*
@@ -36,5 +38,13 @@ abstract class BaseRoutingTest {
     fun <R> TestApplicationResponse.parseBody(clazz: Class<R>): R {
         return gson.fromJson(content, clazz)
     }
+
+    fun <R> TestApplicationResponse.parseBodyList(clazz: Class<R>): List<R> {
+        val itemType = object : TypeToken<List<R>>() {}.type
+        return gson.fromJson(content, itemType)
+    }
+
+    internal inline fun <reified T> Gson.parseBodyy(json: String) =
+        fromJson<T>(json, object : TypeToken<T>() {}.type)
 
 }
