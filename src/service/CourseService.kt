@@ -37,7 +37,7 @@ class CourseService {
     fun getCourses(filters: Map<String, String>? = null, limit : Int?, offset: Int?): List<Course> {
         val actualLimit = limit ?: GET_COURSES_DEFAULT_LIMIT
         val actualOffset = offset ?: GET_COURSES_DEFAULT_OFFSET
-        return courseDao.getCourses(filters, actualLimit, actualOffset)
+        return courseDao.getCourses(filters, actualLimit, actualOffset.toLong())
     }
 
     companion object {

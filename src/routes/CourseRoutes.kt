@@ -90,4 +90,18 @@ fun Route.courseRouting() {
         }
     }
 
+    route("/courseNames") {
+        get {
+            val courses = courseService.getCourses(limit = -1, offset = null)
+            if (courses.isEmpty())
+                call.respond(HttpStatusCode.NoContent)
+            else {
+                with(call) {
+                    addCacheHeader()
+                    respond(courses.map { it.name })
+                }
+            }
+        }
+    }
+
 }

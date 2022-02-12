@@ -87,15 +87,21 @@ class CourseDaoImpl : CourseDao {
         }.singleOrNull()
     }
 
-    override fun getCourses(filters: Map<String, String>?, limit: Int, offset: Int): List<Course> {
-        return transaction { getAllCourses() }
+    override fun getCourses(filters: Map<String, String>?, limit: Int, offset: Long): List<Course> {
+        return transaction { getAllCourses(limit, offset) }
     }
     
-    private fun getAllCourses(limit: Int = 20, offset: Long = 0) : List<Course> {
-        return CourseTable.selectAll()
-            .limit(limit, offset)
-            .orderBy(CourseTable.createdAt to SortOrder.DESC)
-            .mapNotNull {  CourseDbMapper.mapFromEntity(it) }
+    private fun getAllCourses(limit: Int, offset: Long) : List<Course> {
+        return if (limit >= 1)
+            CourseTable.selectAll()
+                .limit(limit, offset)
+                .orderBy(CourseTable.createdAt to SortOrder.DESC)
+                .mapNotNull {  CourseDbMapper.mapFromEntity(it) }
+        else
+            CourseTable.selectAll()
+                .orderBy(CourseTable.createdAt to SortOrder.DESC)
+                .mapNotNull {  CourseDbMapper.mapFromEntity(it) }
+
     }
 
 }
