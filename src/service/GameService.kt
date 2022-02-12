@@ -103,8 +103,15 @@ class GameService : ServiceNotification() {
 		return gameDao.getScoreBookByGameId(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 	}
 
-	fun getGameByPlayerId(playerId: Int): List<Game>? =
-		gameDao.getGamesByPlayerId(playerId)
+	fun getGamesByPlayerId(playerId: Int): List<Game>? =
+		gameDao.getGamesByPlayerId(playerId).ifEmpty { null }
+
+	fun getGamesByState(state: String): List<Game>? {
+		return GBState.toState(state)?.let {
+			gameDao.getGamesByState(it).ifEmpty { null }
+		}
+	}
+
 
     companion object {
 		const val GET_GAMES_DEFAULT_SIZE = 10

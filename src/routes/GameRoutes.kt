@@ -93,10 +93,16 @@ fun Route.gameRouting() {
         }
 
         get {
-            val playerId = call.parameters["playerId"]?.toInt() ?: return@get call.respond(HttpStatusCode.BadRequest)
-            // val state = call.parameters["state"] TODO
+            val playerId = call.parameters["playerId"]?.toInt()
+            val state = call.parameters["state"]
 
-            val games = gameService.getGameByPlayerId(playerId)
+            if ((playerId != null && state != null) || (playerId == null && state == null))
+                return@get call.respond(HttpStatusCode.BadRequest)
+
+            val games =  if (playerId != null)
+                gameService.getGamesByPlayerId(playerId)
+            else
+                gameService.getGamesByState(state!!)
 
             games?.let {
                 with(call) {

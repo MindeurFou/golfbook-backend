@@ -140,9 +140,33 @@ class GameDaoImpl : GameDao {
 //        games.ifEmpty { null }
 //    }
 
-    override fun getGamesByPlayerId(playerId: Int, limit: Int, offset: Int): List<Game>? = transaction {
-        // TODO
-        null
+    override fun getGamesByPlayerId(playerId: Int, limit: Int, offset: Int): List<Game> = transaction {
+
+        (GameTable innerJoin PlayerGameAssociation).select {
+            PlayerGameAssociation.playerId eq playerId and (GameTable.id eq PlayerGameAssociation.gameId)
+        }.mapNotNull {
+
+            val players = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)?.playerScores?.map { playerScore ->
+                playerScore.name
+            } ?: listOf()
+
+            val course = courseDao.getCourseById(it[GameTable.id].value)
+            GameDbMapper.mapFromEntity(it, players, course!!.name)
+        }
+    }
+
+    override fun getGamesByState(state: GBState): List<Game> = transaction {
+        GameTable.select {
+            GameTable.state eq state
+        }.mapNotNull {
+
+            val players = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)?.playerScores?.map { playerScore ->
+                playerScore.name
+            } ?: listOf()
+            val course = courseDao.getCourseById(it[GameTable.id].value)
+
+            GameDbMapper.mapFromEntity(it, players, course!!.name)
+        }
     }
 
     interface ScoreBookDao {
