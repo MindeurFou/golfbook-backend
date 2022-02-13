@@ -61,11 +61,6 @@ class GameDaoImpl : GameDao {
 
     override fun insertGame(postGame: PostGameBody): Int = transaction {
 
-//        postGame.tournamentId?.let { id ->
-//            val query = TournamentTable.select { TournamentTable.id eq id }
-//            if (query.empty()) throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
-//        }
-
         val courseId = courseDao.getCourseByName(postGame.courseName)?.id ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
 
         val gameId = GameTable.insertAndGetId {
@@ -73,10 +68,6 @@ class GameDaoImpl : GameDao {
             it[this.courseId] = courseId
             it[name] = postGame.name
             it[scoringSystem] = postGame.scoringSystem
-
-//            postGame.tournamentId?.let { id ->
-//                it[tournamentId] = EntityID(id, TournamentTable)
-//            }
 
         }.value
 
@@ -129,21 +120,6 @@ class GameDaoImpl : GameDao {
 //        scoreBookDao.deleteScoreBook(gameId)
         GameTable.deleteWhere { GameTable.id eq gameId } > 0
     }
-
-//    override fun getGamesByTournamentId(tournamentId: Int, limit: Int, offset: Int): List<Game>? = transaction {
-//        val games = GameTable.select {
-//            GameTable.tournamentId eq tournamentId
-//        }
-//            .limit(limit, offset.toLong())
-////            .orderBy(GameTable.creationDate to SortOrder.DESC)
-//            .mapNotNull {
-//                val scoreBook = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)
-//                val players = scoreBook?.value?.keys?.toList() ?: listOf()
-//                val course = courseDao.getCourseById(it[GameTable.id].value)
-//                GameDbMapper.mapFromEntity(it, players, course!!.name)
-//            }
-//        games.ifEmpty { null }
-//    }
 
     override fun getGamesByPlayerId(playerId: Int, limit: Int, offset: Int): List<Game> = transaction {
 

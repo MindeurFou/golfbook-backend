@@ -4,8 +4,6 @@ import com.mindeurfou.utils.GBException
 import com.mindeurfou.database.game.GameDao
 import com.mindeurfou.database.game.GameDaoImpl
 import com.mindeurfou.database.game.GameTable
-import com.mindeurfou.database.tournament.TournamentDao
-import com.mindeurfou.database.tournament.TournamentDaoImpl
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.GameNetworkMapper
 import com.mindeurfou.model.game.incoming.PostGameBody
@@ -18,7 +16,6 @@ import com.mindeurfou.model.game.outgoing.ScoreBook
 class GameService : ServiceNotification() {
 
 	private val gameDao: GameDao = GameDaoImpl()
-	private val tournamentDao: TournamentDao = TournamentDaoImpl()
 
 	// CRUD classic methods
 
@@ -27,12 +24,6 @@ class GameService : ServiceNotification() {
 	}
 
 	fun addNewGame(postGame: PostGameBody) : GameDetailsNetworkEntity {
-
-//		postGame.tournamentId?.let {
-//			val tournamentDetails = tournamentDao.getTournamentById(it) ?: throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
-//            if (tournamentDetails.state == GBState.DONE) throw GBException(GBException.TOURNAMENT_DONE_MESSAGE)
-//		}
-
 		val gameId = gameDao.insertGame(postGame)
 		return GameNetworkMapper.toGameDetailsNetworkEntity(gameDao.getGameById(gameId)!!)
 	}
@@ -64,12 +55,6 @@ class GameService : ServiceNotification() {
 	}
 
 	fun deleteGame(gameId: Int): Boolean = gameDao.deleteGame(gameId)
-
-	fun getGameByTournamentId(
-		tournamentId: Int,
-		limit : Int = GET_GAMES_DEFAULT_SIZE,
-		offset : Int = GET_GAMES_DEFAULT_OFFSET
-	) = {} // gameDao.getGamesByTournamentId(tournamentId, limit, offset)
 
 	// in-game specific operations
 

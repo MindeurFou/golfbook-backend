@@ -1,14 +1,10 @@
 package com.mindeurfou.database
 
 import com.mindeurfou.database.course.CourseTable
-import com.mindeurfou.database.game.GameDaoImpl
 import com.mindeurfou.database.game.GameTable
 import com.mindeurfou.database.game.scorebook.ScoreBookTable
 import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.database.player.PlayerTable
-import com.mindeurfou.database.tournament.TournamentTable
-import com.mindeurfou.database.tournament.leaderboard.LeaderBoardTable
-import com.mindeurfou.model.game.incoming.PostGameBody
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.Database
@@ -24,8 +20,6 @@ object DatabaseProvider : DatabaseProviderContract {
             SchemaUtils.create(PlayerTable)
             SchemaUtils.create(PlayerGameAssociation)
             SchemaUtils.create(GameTable)
-            SchemaUtils.create(TournamentTable)
-            SchemaUtils.create(LeaderBoardTable)
             SchemaUtils.create(ScoreBookTable)
             SchemaUtils.create(CourseTable)
             SchemaUtils.create(HoleTable)
@@ -36,12 +30,10 @@ object DatabaseProvider : DatabaseProviderContract {
     private fun wipeOutDatabase() {
         transaction {
             SchemaUtils.drop(PlayerGameAssociation)
-            SchemaUtils.drop(LeaderBoardTable)
             SchemaUtils.drop(ScoreBookTable)
             SchemaUtils.drop(HoleTable)
             SchemaUtils.drop(GameTable)
             SchemaUtils.drop(CourseTable)
-            SchemaUtils.drop(TournamentTable)
             SchemaUtils.drop(PlayerTable)
         }
     }

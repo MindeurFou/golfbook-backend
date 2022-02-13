@@ -12,7 +12,6 @@ interface GameDao {
     fun insertGame(postGame: PostGameBody): Int
     fun updateGame(putGame: PutGameBody): GameDetails
     fun deleteGame(gameId: Int): Boolean
-//    fun getGamesByTournamentId(tournamentId: Int, limit: Int = 20, offset: Int = 0): List<Game>?
     fun getGamesByPlayerId(playerId: Int, limit: Int = 20, offset: Int = 0): List<Game>
     fun getGamesByState(state: GBState): List<Game>
 
