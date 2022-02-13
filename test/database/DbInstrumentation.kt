@@ -1,7 +1,8 @@
 package database
 
 import com.mindeurfou.model.course.incoming.PostCourseBody
-import com.mindeurfou.model.hole.incoming.PostHoleBody
+import com.mindeurfou.model.game.incoming.PostGameBody
+import com.mindeurfou.model.game.outgoing.ScoringSystem
 import com.mindeurfou.model.hole.local.Hole
 import com.mindeurfou.model.player.incoming.PostPlayerBody
 
@@ -12,7 +13,8 @@ object DbInstrumentation {
         "pouriel",
         "MindeurFou",
         "testPassword",
-        247933224
+        247933224,
+        true
     )
 
     fun otherValidPostPlayerBody() = PostPlayerBody(
@@ -20,20 +22,8 @@ object DbInstrumentation {
         "adams",
         "LeKing",
         "testtestpwd",
-        272939308
-    )
-
-
-    fun validPostHoleBodies() = listOf(
-            PostHoleBody(1,3),
-            PostHoleBody(2,4),
-            PostHoleBody(3,5),
-            PostHoleBody(4,2),
-            PostHoleBody(5,5),
-            PostHoleBody(6,7),
-            PostHoleBody(7,3),
-            PostHoleBody(8,4),
-            PostHoleBody(9,3)
+        272939308,
+        true
     )
 
     fun listOfHoles() = listOf(
@@ -53,11 +43,16 @@ object DbInstrumentation {
         9,
         36,
         4,
-        validPostHoleBodies()
+        listOfHoles().map { it.par }
     )
 
     fun initialScoreBook(name: String) = mapOf(
         name to listOf<Int?>(null, null, null, null, null, null, null, null, null)
     )
+
+    fun validPostGame(courseName : String? = null) = PostGameBody(
+        name = "Game of test",
+        courseName = courseName ?: "Course of test",
+        scoringSystem = ScoringSystem.STABLEFORD)
 
 }

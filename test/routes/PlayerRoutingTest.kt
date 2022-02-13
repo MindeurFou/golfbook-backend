@@ -64,7 +64,7 @@ class PlayerRoutingTest : BaseRoutingTest() {
     fun `PUT a player`() = withBaseTestApplication {
         val playerId = 1
         val putPlayerBody = RoutingInstrumentation.putPlayerBody(playerId)
-        val player = Player(putPlayerBody.id, "Tanguy", "Pouriel", putPlayerBody.username, putPlayerBody.drawableResourceId)
+        val player = Player(putPlayerBody.id, "Tanguy", "Pouriel", putPlayerBody.username, putPlayerBody.avatarId, true)
         every { playerService.updatePlayer(any()) } returns player
 
         val body = toJsonBody(putPlayerBody)

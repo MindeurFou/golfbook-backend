@@ -54,7 +54,8 @@ class PlayerDaoTest : BaseDaoTest() {
                     validPostPlayer.name,
                     validPostPlayer.lastName,
                     validPostPlayer.username,
-                    validPostPlayer.drawableResourceId
+                    validPostPlayer.avatarId,
+                    true
                 )
             )
         }
@@ -74,29 +75,26 @@ class PlayerDaoTest : BaseDaoTest() {
         every { passwordManager.encryptPassword(any()) } returns "testPassword"
         transaction {
             createSchema()
-            val unValidPutPlayer = PutPlayerBody(4, "luffy91230", 34234253)
+            val unValidPutPlayer = PutPlayerBody(4, "tanguy", "Pouriel", "Toug", 1)
             assertThrows(GBException::class.java) {
                 playerDao.updatePlayer(unValidPutPlayer)
             }
 
-
             val validPostPlayer = DbInstrumentation.validPostPlayerBody()
             val playerId = playerDao.insertPlayer(validPostPlayer)
-            val validPutPlayer = PutPlayerBody(playerId, "luffy91230", 3292323)
+            val validPutPlayer = PutPlayerBody(playerId, "Tanguy", "Pouriel", "Toug", 1)
             val updatedPlayer = playerDao.updatePlayer(validPutPlayer)
 
             assertThat(updatedPlayer).isEqualTo(
                 Player(
                     playerId,
-                    validPostPlayer.name,
-                    validPostPlayer.lastName,
+                    validPutPlayer.name,
+                    validPutPlayer.lastName,
                     validPutPlayer.username,
-                    validPutPlayer.drawableResourceId
+                    validPutPlayer.avatarId,
+                    true
                 )
             )
-
-            val player = playerDao.getPlayerById(playerId)
-            assertEquals(player, updatedPlayer)
         }
     }
 
@@ -132,7 +130,8 @@ class PlayerDaoTest : BaseDaoTest() {
             assertEquals(player.name, validPlayer.name)
             assertEquals(player.lastName, validPlayer.lastName)
             assertEquals(player.username, validPlayer.username)
-            assertEquals(player.drawableResourceId, validPlayer.drawableResourceId)
+            assertEquals(player.avatarId, validPlayer.avatarId)
+            assertEquals(player.realUser, validPlayer.realUser)
         }
     }
 

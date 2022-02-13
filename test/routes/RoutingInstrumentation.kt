@@ -5,6 +5,9 @@ import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.local.GameDetails
+import com.mindeurfou.model.game.outgoing.GameDetailsNetworkEntity
+import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.outgoing.ScoringSystem
 import com.mindeurfou.model.player.incoming.PostPlayerBody
 import com.mindeurfou.model.player.incoming.PutPlayerBody
 import com.mindeurfou.model.player.outgoing.GetPlayersResponse
@@ -18,7 +21,8 @@ object RoutingInstrumentation {
         name = "Tanguy",
         lastName = "Pouriel",
         username = "MindeurFou",
-        drawableResourceId = 2423429
+        avatarId = 1,
+        realUser = true
     )
 
     fun getPlayerResponse() = GetPlayersResponse(
@@ -27,9 +31,10 @@ object RoutingInstrumentation {
             name = "Tanguy",
             lastName = "Pouriel",
             username = "MindeurFou",
-            drawableResourceId = 2423429
+            avatarId = 1,
+            realUser = true
         ),
-        listOf(Player(2, "name", "lastname", "username", 243232))
+        listOf(Player(2, "name", "lastname", "username", 1, true))
     )
 
     fun postPlayerBody() = PostPlayerBody(
@@ -37,28 +42,34 @@ object RoutingInstrumentation {
         lastName = "Pouriel",
         username = "MindeurFou",
         password = "mypassword",
-        drawableResourceId = 2423429,
+        avatarId = 1,
+        realUser = true
     )
 
     fun putPlayerBody(id: Int) = PutPlayerBody(
         id = id,
         username = "LeBoss",
-        drawableResourceId = 3429324
+        avatarId = 3429324,
+        name = "test name",
+        lastName = "test lastname"
     )
 
-    fun initialGameDetails(gameId: Int) = GameDetails(
+    fun initialGameDetails(gameId: Int) = GameDetailsNetworkEntity(
         gameId,
-        GBState.WAITING,
+        "Game of test",
+        GBState.INIT,
+        LocalDate.now(),
+        ScoringSystem.STABLEFORD,
         "Parcours du test",
-        1,
-        emptyList(),
-        null
+        listOf(3, 3, 4, 4, 4, 4, 4, 4, 4),
+        listOf(),
+        ScoreBook(listOf())
     )
 
     fun postGameBody() = PostGameBody(
-        1,
-        null,
-        "myGame"
+        "myGame",
+        "Parcours du test",
+        ScoringSystem.STABLEFORD
     )
 
     fun putGameBody(gameId: Int) = PutGameBody(
@@ -69,17 +80,21 @@ object RoutingInstrumentation {
 
     fun games() = listOf(
         Game(
-            1, "gameName",
+            1,
+            "gameName",
             GBState.PENDING,
+            ScoringSystem.STABLEFORD,
+            listOf(),
             "courseName",
-            null,
-            LocalDate.now()
+            LocalDate.now(),
         ),
         Game(
-            2, "gameName2",
+            2,
+            "gameName2",
             GBState.PENDING,
+            ScoringSystem.STABLEFORD,
+            listOf(),
             "courseName2",
-            null,
             LocalDate.now()
         )
     )

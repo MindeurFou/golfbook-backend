@@ -83,7 +83,9 @@ fun Route.gameRouting() {
             try {
                 val postGameBody = call.receive<PostGameBody>()
                 var gameDetails = gameService.addNewGame(postGameBody)
-                gameDetails = gameService.addGamePlayer(gameDetails.id, call.principal<Player>()!!.id)
+                call.principal<Player>()?.let {
+                    gameDetails = gameService.addGamePlayer(gameDetails.id, it.id)
+                }
                 call.respond(gameDetails)
             } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)

@@ -1,6 +1,6 @@
 package routes
 
-import com.google.gson.Gson
+import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import com.mindeurfou.model.game.outgoing.Game
 import io.ktor.application.*
@@ -10,10 +10,19 @@ import io.ktor.server.testing.*
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.ktor.ext.Koin
+import java.lang.reflect.Type
+import java.time.LocalDate
 
 abstract class BaseRoutingTest {
 
-    private val gson = Gson()
+    private val gson = GsonBuilder()
+        .registerTypeAdapter(LocalDate::class.java, object : JsonDeserializer<LocalDate> {
+            override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): LocalDate {
+                return LocalDate.ofEpochDay(json!!.asString!!.toLong())
+            }
+
+    }).create()
+
     protected var koinModules: Module? = null
     protected var moduleList: Application.() -> Unit = {}
 

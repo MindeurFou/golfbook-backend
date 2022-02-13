@@ -23,10 +23,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class GameDaoImpl : GameDao {
 
     private val courseDao: CourseDao = CourseDaoImpl()
+    private val playerDao: PlayerDao = PlayerDaoImpl()
 
     private val scoreBookDao: ScoreBookDao = ScoreBookDaoImpl(
         courseDao = courseDao,
-        playerDao = PlayerDaoImpl()
+        playerDao = playerDao
     )
 
     var scoreBook = ScoreBook(
@@ -42,21 +43,26 @@ class GameDaoImpl : GameDao {
             PlayerDbMapper.mapFromEntity(it)
         }
 
-        val gameDetails = (GameTable innerJoin CourseTable innerJoin HoleTable).select {
+        val gameDetails = (GameTable innerJoin CourseTable).select {
             GameTable.id eq gameId
         }.mapNotNull {
             GameDetailsDbMapper.mapFromEntity(it, scoreBook, players, par = listOf())
         }.singleOrNull()
 
-        val holes = HoleTable.select {
-            HoleTable.courseId eq gameDetails!!.courseId
-        }.mapNotNull { resultRow ->
-            HoleDbMapper.mapFromEntity(resultRow)
-        }.sortedBy {
-            it.holeNumber
-        }.map { it.par }
 
-        gameDetails?.copy(par = holes)
+        gameDetails?.let {
+            val holes = HoleTable.select {
+                HoleTable.courseId eq gameDetails.courseId
+            }.mapNotNull { resultRow ->
+                HoleDbMapper.mapFromEntity(resultRow)
+            }.sortedBy {
+                it.holeNumber
+            }.map { it.par }
+
+            gameDetails.copy(par = holes)
+        }
+
+
     }
 
     override fun insertGame(postGame: PostGameBody): Int = transaction {
@@ -74,7 +80,9 @@ class GameDaoImpl : GameDao {
         gameId
     }
 
+    // validity of gameId and playerId is checked in gameService
     override fun addGamePlayer(gameId: Int, playerId: Int): GameDetails = transaction {
+
 //        scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
 
         PlayerGameAssociation.insert {
@@ -85,7 +93,8 @@ class GameDaoImpl : GameDao {
         getGameById(gameId)!!
     }
 
-    override fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails? = transaction {
+    // validity of gameId and playerId is checked in gameService
+    override fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails = transaction {
         val deleted = true // scoreBookDao.deleteScoreBookPlayer(gameId, playerId)
         if (!deleted) throw GBException(GBException.SCOREBOOK_NOT_FIND_MESSAGE)
 
@@ -93,7 +102,7 @@ class GameDaoImpl : GameDao {
             PlayerGameAssociation.gameId eq gameId and (PlayerGameAssociation.playerId eq playerId)
         }
 
-        getGameById(gameId)
+        getGameById(gameId)!!
     }
 
     override fun updateScoreBook(scoreBook: ScoreBook): ScoreBook =

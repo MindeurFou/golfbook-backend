@@ -38,8 +38,8 @@ class CourseDaoTest : BaseDaoTest(){
                     validCourse.numberOfHOles,
                     validCourse.par,
                     0,
+                    validCourse.stars,
                     LocalDate.now(),
-                    4,
                     DbInstrumentation.listOfHoles()
                 )
             )
@@ -68,8 +68,7 @@ class CourseDaoTest : BaseDaoTest(){
                         validPutCourseBody.name,
                         validPutCourseBody.numberOfHOles,
                         validPutCourseBody.par,
-                        10,
-                        4,
+                        validPutCourseBody.stars,
                         DbInstrumentation.listOfHoles()
                     )
                 )
@@ -83,8 +82,7 @@ class CourseDaoTest : BaseDaoTest(){
                     validPutCourseBody.name,
                     validPutCourseBody.numberOfHOles,
                     validPutCourseBody.par,
-                    10,
-                    4,
+                    validPutCourseBody.stars,
                     DbInstrumentation.listOfHoles()
                 )
             )
@@ -95,9 +93,9 @@ class CourseDaoTest : BaseDaoTest(){
                     validPutCourseBody.name,
                     validPutCourseBody.numberOfHOles,
                     validPutCourseBody.par,
-                    10,
+                    0,
+                    validPutCourseBody.stars,
                     LocalDate.now(),
-                    4,
                     DbInstrumentation.listOfHoles()
                 )
             )
@@ -151,14 +149,12 @@ class CourseDaoTest : BaseDaoTest(){
         transaction {
             createSchema()
 
-            // TODO finish function and test nullity
-
             val validCourseBody = DbInstrumentation.validPostCourseBody()
 
             val courseId0 = courseDao.insertCourse(validCourseBody)
             val courseId1 = courseDao.insertCourse(validCourseBody)
 
-            val courses = courseDao.getCourses(limit = CourseService.GET_COURSES_DEFAULT_LIMIT, offset = CourseService.GET_COURSES_DEFAULT_OFFSET)
+            val courses = courseDao.getCourses(limit = CourseService.GET_COURSES_DEFAULT_LIMIT, offset = CourseService.GET_COURSES_DEFAULT_OFFSET.toLong())
 
             assertEquals(courses.size, 2)
             assertThat(courses[0]).isEqualTo(

@@ -3,12 +3,12 @@ package com.mindeurfou.service
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.database.game.GameDao
 import com.mindeurfou.database.game.GameDaoImpl
-import com.mindeurfou.database.game.GameTable
+import com.mindeurfou.database.player.PlayerDao
+import com.mindeurfou.database.player.PlayerDaoImpl
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.GameNetworkMapper
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
-import com.mindeurfou.model.game.local.GameDetails
 import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.outgoing.GameDetailsNetworkEntity
 import com.mindeurfou.model.game.outgoing.ScoreBook
@@ -16,6 +16,7 @@ import com.mindeurfou.model.game.outgoing.ScoreBook
 class GameService : ServiceNotification() {
 
 	private val gameDao: GameDao = GameDaoImpl()
+	private val playerDao: PlayerDao = PlayerDaoImpl()
 
 	// CRUD classic methods
 
@@ -60,7 +61,8 @@ class GameService : ServiceNotification() {
 
 	fun addGamePlayer(gameId: Int, playerId: Int) : GameDetailsNetworkEntity {
 		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
-        if (gameDetails.state != GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
+		playerDao.getPlayerById(playerId) ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
+		if (gameDetails.state != GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
 		val playerInGame = gameDetails.players.any { it.id == playerId }
 		val gameIsFull = gameDetails.players.size >= 4
@@ -73,6 +75,7 @@ class GameService : ServiceNotification() {
 
 	fun deleteGamePlayer(gameId: Int, playerId: Int) {
 		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+		playerDao.getPlayerById(playerId) ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
 		if (gameDetails.state != GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
 		val playerInGame = gameDetails.players.any { it.id == playerId }
