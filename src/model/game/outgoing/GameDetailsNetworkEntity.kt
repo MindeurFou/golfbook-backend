@@ -6,6 +6,7 @@ import com.mindeurfou.utils.DateAsLongSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
+@Serializable
 data class GameDetailsNetworkEntity(
     val id : Int,
     val name: String,

@@ -17,7 +17,7 @@ interface GameDao {
     fun getGamesByState(state: GBState): List<Game>
 
     // scoreBook specific operations
-    fun addGamePlayer(gameId: Int, playerId: Int): GameDetails?
+    fun addGamePlayer(gameId: Int, playerId: Int): GameDetails
     fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails?
     fun updateScoreBook(scoreBook: ScoreBook): ScoreBook
     fun getScoreBookByGameId(gameId: Int): ScoreBook?

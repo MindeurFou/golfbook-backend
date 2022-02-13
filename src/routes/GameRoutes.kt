@@ -4,11 +4,13 @@ import com.mindeurfou.model.game.incoming.PatchGameBody
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.service.GameService
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.utils.GBHttpStatusCode
 import com.mindeurfou.utils.addCacheHeader
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -80,7 +82,8 @@ fun Route.gameRouting() {
         post {
             try {
                 val postGameBody = call.receive<PostGameBody>()
-                val gameDetails = gameService.addNewGame(postGameBody)
+                var gameDetails = gameService.addNewGame(postGameBody)
+                gameDetails = gameService.addGamePlayer(gameDetails.id, call.principal<Player>()!!.id)
                 call.respond(gameDetails)
             } catch (e: SerializationException) {
                 return@post call.respond(HttpStatusCode.BadRequest)

@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PostGameBody(
     val name: String,
-    val courseName: Int,
+    val courseName: String,
     val scoringSystem: ScoringSystem
 )

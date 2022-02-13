@@ -3,12 +3,14 @@ package com.mindeurfou.service
 import com.mindeurfou.utils.GBException
 import com.mindeurfou.database.game.GameDao
 import com.mindeurfou.database.game.GameDaoImpl
+import com.mindeurfou.database.game.GameTable
 import com.mindeurfou.database.tournament.TournamentDao
 import com.mindeurfou.database.tournament.TournamentDaoImpl
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.GameNetworkMapper
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
+import com.mindeurfou.model.game.local.GameDetails
 import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.outgoing.GameDetailsNetworkEntity
 import com.mindeurfou.model.game.outgoing.ScoreBook
@@ -71,15 +73,17 @@ class GameService : ServiceNotification() {
 
 	// in-game specific operations
 
-	fun addGamePlayer(gameId: Int, playerId: Int) {
+	fun addGamePlayer(gameId: Int, playerId: Int) : GameDetailsNetworkEntity {
 		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
         if (gameDetails.state != GBState.INIT) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
 		val playerInGame = gameDetails.players.any { it.id == playerId }
 		val gameIsFull = gameDetails.players.size >= 4
 
-		if (!playerInGame && !gameIsFull)
-			gameDao.addGamePlayer(gameId, playerId)
+		return if (!playerInGame && !gameIsFull)
+			GameNetworkMapper.toGameDetailsNetworkEntity(gameDao.addGamePlayer(gameId, playerId))
+		else
+			GameNetworkMapper.toGameDetailsNetworkEntity(gameDetails)
 	}
 
 	fun deleteGamePlayer(gameId: Int, playerId: Int) {

@@ -4,6 +4,8 @@ import com.mindeurfou.database.PlayerGameAssociation
 import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
 import com.mindeurfou.database.course.CourseTable
+import com.mindeurfou.database.hole.HoleDbMapper
+import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
 import com.mindeurfou.database.player.PlayerDbMapper
@@ -40,18 +42,21 @@ class GameDaoImpl : GameDao {
             PlayerDbMapper.mapFromEntity(it)
         }
 
-//        val holes = HoleTable.select {
-//            HoleTable.courseId eq courseId
-//        }.mapNotNull { resultRow ->
-//            HoleDbMapper.mapFromEntity(resultRow)
-//        }
-        val holes = listOf(3, 3,4,3) // TODO
-
-        (GameTable innerJoin CourseTable).select {
+        val gameDetails = (GameTable innerJoin CourseTable innerJoin HoleTable).select {
             GameTable.id eq gameId
         }.mapNotNull {
-            GameDetailsDbMapper.mapFromEntity(it, scoreBook, players, holes)
+            GameDetailsDbMapper.mapFromEntity(it, scoreBook, players, par = listOf())
         }.singleOrNull()
+
+        val holes = HoleTable.select {
+            HoleTable.courseId eq gameDetails!!.courseId
+        }.mapNotNull { resultRow ->
+            HoleDbMapper.mapFromEntity(resultRow)
+        }.sortedBy {
+            it.holeNumber
+        }.map { it.par }
+
+        gameDetails?.copy(par = holes)
     }
 
     override fun insertGame(postGame: PostGameBody): Int = transaction {
@@ -61,12 +66,13 @@ class GameDaoImpl : GameDao {
 //            if (query.empty()) throw GBException(GBException.TOURNAMENT_NOT_FIND_MESSAGE)
 //        }
 
-        val courseId = courseDao.getCourseByName(postGame.name)?.id ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
+        val courseId = courseDao.getCourseByName(postGame.courseName)?.id ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
 
         val gameId = GameTable.insertAndGetId {
             it[state] = GBState.INIT
             it[this.courseId] = courseId
             it[name] = postGame.name
+            it[scoringSystem] = postGame.scoringSystem
 
 //            postGame.tournamentId?.let { id ->
 //                it[tournamentId] = EntityID(id, TournamentTable)
@@ -77,8 +83,7 @@ class GameDaoImpl : GameDao {
         gameId
     }
 
-    override fun addGamePlayer(gameId: Int, playerId: Int): GameDetails? {
-        val courseId = getGameById(gameId)?.courseId ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+    override fun addGamePlayer(gameId: Int, playerId: Int): GameDetails = transaction {
 //        scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
 
         PlayerGameAssociation.insert {
@@ -86,10 +91,10 @@ class GameDaoImpl : GameDao {
             it[PlayerGameAssociation.gameId] = gameId
         }
 
-        return getGameById(gameId)
+        getGameById(gameId)!!
     }
 
-    override fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails? {
+    override fun deleteGamePlayer(gameId: Int, playerId: Int): GameDetails? = transaction {
         val deleted = true // scoreBookDao.deleteScoreBookPlayer(gameId, playerId)
         if (!deleted) throw GBException(GBException.SCOREBOOK_NOT_FIND_MESSAGE)
 
@@ -97,7 +102,7 @@ class GameDaoImpl : GameDao {
             PlayerGameAssociation.gameId eq gameId and (PlayerGameAssociation.playerId eq playerId)
         }
 
-        return getGameById(gameId)
+        getGameById(gameId)
     }
 
     override fun updateScoreBook(scoreBook: ScoreBook): ScoreBook =
@@ -150,7 +155,7 @@ class GameDaoImpl : GameDao {
                 playerScore.name
             } ?: listOf()
 
-            val course = courseDao.getCourseById(it[GameTable.id].value)
+            val course = courseDao.getCourseById(it[GameTable.courseId].value)
             GameDbMapper.mapFromEntity(it, players, course!!.name)
         }
     }
@@ -163,7 +168,7 @@ class GameDaoImpl : GameDao {
             val players = scoreBookDao.getScoreBookByGameId(it[GameTable.id].value)?.playerScores?.map { playerScore ->
                 playerScore.name
             } ?: listOf()
-            val course = courseDao.getCourseById(it[GameTable.id].value)
+            val course = courseDao.getCourseById(it[GameTable.courseId].value)
 
             GameDbMapper.mapFromEntity(it, players, course!!.name)
         }
