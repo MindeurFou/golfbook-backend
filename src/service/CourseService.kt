@@ -14,9 +14,9 @@ class CourseService {
 
     private val courseDao: CourseDao = CourseDaoImpl()
 
-    fun addNewCourse(postCourseBody: PostCourseBody) : CourseDetails {
+    fun addNewCourse(postCourseBody: PostCourseBody) : CourseDetailsNetworkEntity {
         val courseId = courseDao.insertCourse(postCourseBody)
-        return courseDao.getCourseById(courseId)!!
+        return CourseNetworkMapper.toCourseDetailsNetworkMapper(courseDao.getCourseById(courseId)!!)
     }
 
     fun getCourse(courseId : Int) : CourseDetailsNetworkEntity {

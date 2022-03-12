@@ -17,5 +17,5 @@ data class GameDetailsNetworkEntity(
     val courseName: String,
     val par: List<Int>,
     val players: List<Player>,
-    val scoreBook : ScoreBook
+    val scoreBook : ScoreBookNetworkEntity
 )

@@ -3,7 +3,7 @@ package com.mindeurfou.routes
 import com.mindeurfou.model.game.incoming.PatchGameBody
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
-import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.local.ScoreBook
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.service.GameService
 import com.mindeurfou.utils.GBException

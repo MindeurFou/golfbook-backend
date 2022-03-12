@@ -4,6 +4,13 @@ import com.mindeurfou.database.PlayerGameAssociation
 import com.mindeurfou.database.course.CourseDao
 import com.mindeurfou.database.course.CourseDaoImpl
 import com.mindeurfou.database.course.CourseTable
+import com.mindeurfou.database.game.scorebook.PlayerScoreTable
+import com.mindeurfou.database.game.scorebook.ScoreBookDbMapper
+import com.mindeurfou.database.game.scorebook.ScoreDetailsTable
+import com.mindeurfou.database.game.scorebook.ScoreDetailsTable.holeNumber
+import com.mindeurfou.database.game.scorebook.ScoreDetailsTable.net
+import com.mindeurfou.database.game.scorebook.ScoreDetailsTable.playerScoreId
+import com.mindeurfou.database.game.scorebook.ScoreDetailsTable.score
 import com.mindeurfou.database.hole.HoleDbMapper
 import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.database.player.PlayerDao
@@ -15,7 +22,8 @@ import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.local.GameDetails
-import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.local.PlayerScore
+import com.mindeurfou.model.game.local.ScoreBook
 import com.mindeurfou.utils.GBException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -30,12 +38,8 @@ class GameDaoImpl : GameDao {
         playerDao = playerDao
     )
 
-    var scoreBook = ScoreBook(
-        listOf()
-    )
-
     override fun getGameById(gameId: Int): GameDetails? = transaction {
-        val scoreBook = scoreBook//scoreBookDao.getScoreBookByGameId(gameId)
+        val scoreBook = scoreBookDao.getScoreBookByGameId(gameId) ?: ScoreBook.emptyScoreBook()
 
         val players = (GameTable innerJoin PlayerGameAssociation innerJoin PlayerTable).select {
             GameTable.id eq gameId
@@ -81,9 +85,9 @@ class GameDaoImpl : GameDao {
     }
 
     // validity of gameId and playerId is checked in gameService
-    override fun addGamePlayer(gameId: Int, playerId: Int): GameDetails = transaction {
+    override fun addGamePlayer(gameId: Int, playerId: Int, courseId: Int): GameDetails = transaction {
 
-//        scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
+        scoreBookDao.insertScoreBookPlayer(gameId, playerId, courseId)
 
         PlayerGameAssociation.insert {
             it[PlayerGameAssociation.playerId] = playerId
@@ -105,8 +109,8 @@ class GameDaoImpl : GameDao {
         getGameById(gameId)!!
     }
 
-    override fun updateScoreBook(scoreBook: ScoreBook): ScoreBook =
-        scoreBookDao.updateScoreBook(scoreBook)
+    override fun updateScoreBook(gameId: Int,scoreBook: ScoreBook): ScoreBook =
+        scoreBookDao.updateScoreBook(gameId, scoreBook)
 
     override fun getScoreBookByGameId(gameId: Int): ScoreBook? =
         scoreBookDao.getScoreBookByGameId(gameId)
@@ -161,10 +165,10 @@ class GameDaoImpl : GameDao {
 
     interface ScoreBookDao {
         fun getScoreBookByGameId(gameId: Int): ScoreBook?
-//        fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int)
-//        fun deleteScoreBookPlayer(gameId: Int, playerId: Int): Boolean
-        fun updateScoreBook(scoreBook: ScoreBook): ScoreBook
-//        fun deleteScoreBook(gameId: Int): Boolean
+        fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int)
+        fun deleteScoreBookPlayer(gameId: Int, playerId: Int): Boolean
+        fun updateScoreBook(gameId: Int, scoreBook: ScoreBook): ScoreBook
+        fun deleteScoreBook(gameId: Int): Boolean
     }
 
 
@@ -174,93 +178,84 @@ class GameDaoImpl : GameDao {
     ) : ScoreBookDao {
 
         override fun getScoreBookByGameId(gameId: Int): ScoreBook? = transaction {
-//            val query = (ScoreBookTable innerJoin PlayerTable).select {
-//                ScoreBookTable.gameId eq gameId
-//            }
-//
-//            if (query.empty()) return@transaction null
-//
-//            val scoreBook = query.associate {
-//                ScoreBookDbMapper.mapFromEntity(it)
-//            }
-//            ScoreBook(scoreBook)
-            scoreBook
+            val playerScores = (PlayerScoreTable innerJoin PlayerTable).select {
+                PlayerScoreTable.gameId eq gameId
+            }.mapNotNull {
+                print(it.toString())
+                ScoreBookDbMapper.mapFromEntityToPlayerScore(it, listOf())
+            }
+
+            if (playerScores.isEmpty()) return@transaction null
+
+            val newPlayerScores: MutableList<PlayerScore> = mutableListOf()
+
+            playerScores.forEach { playerScore ->
+
+                val scoreDetails = ScoreDetailsTable.select {
+                    playerScoreId eq playerScore.id
+                }.mapNotNull {
+                    ScoreBookDbMapper.mapFromEntityToScoreDetails(it)
+                }.sortedBy {
+                    it.holeNumber
+                }
+
+                newPlayerScores.add(playerScore.copy(scores = scoreDetails))
+            }
+
+            ScoreBook(newPlayerScores)
         }
 
-//        override fun insertScoreBookPlayer(gameId: Int, authorId: Int, courseId: Int): Unit = transaction {
-//            val numberOfHole = courseDao.getCourseById(courseId)?.numberOfHOles ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
-//            playerDao.getPlayerById(authorId) ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
-//
-//            val query = ScoreBookTable.select { ScoreBookTable.gameId eq gameId and (ScoreBookTable.playerId eq authorId) }
-//            if (!query.empty()) throw GBException("Player is already in this scorebook")
-//
-//            ScoreBookTable.insert {
-//                it[playerId] = authorId
-//                it[ScoreBookTable.gameId] = gameId
-//
-//                it[hole1] = 0
-//                it[hole2] = 0
-//                it[hole3] = 0
-//                it[hole4] = 0
-//                it[hole5] = 0
-//                it[hole6] = 0
-//                it[hole7] = 0
-//                it[hole8] = 0
-//                it[hole9] = 0
-//
-//                val initValue = if (numberOfHole == 18) 0 else null
-//
-//                it[hole10] = initValue
-//                it[hole11] = initValue
-//                it[hole12] = initValue
-//                it[hole13] = initValue
-//                it[hole14] = initValue
-//                it[hole15] = initValue
-//                it[hole16] = initValue
-//                it[hole17] = initValue
-//                it[hole18] = initValue
-//            }
-//        }
-//
-//        override fun deleteScoreBookPlayer(gameId: Int, playerId: Int) = transaction {
-//            ScoreBookTable.deleteWhere { ScoreBookTable.gameId eq gameId  and (ScoreBookTable.playerId eq playerId)} > 0
-//        }
-//
-        override fun updateScoreBook(scoreBook: ScoreBook): ScoreBook =
-//            transaction {
-//
-//            getGameById(scoreBook.gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
-//            scoreBook.scoreBook.forEach { (playerId, scoreBookEntry) ->
-//                playerDao.getPlayerById(playerId) ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE) // update player only if not thrown ?
-//
-//                ScoreBookTable.update( { ScoreBookTable.gameId eq scoreBook.gameId and (ScoreBookTable.playerId eq playerId) } ) {
-//                    it[hole1] = scoreBookEntry[0]!!
-//                    it[hole2] = scoreBookEntry[1]!!
-//                    it[hole3] = scoreBookEntry[2]!!
-//                    it[hole4] = scoreBookEntry[3]!!
-//                    it[hole5] = scoreBookEntry[4]!!
-//                    it[hole6] = scoreBookEntry[5]!!
-//                    it[hole7] = scoreBookEntry[6]!!
-//                    it[hole8] = scoreBookEntry[7]!!
-//                    it[hole9] = scoreBookEntry[8]!!
-//                    it[hole10] = scoreBookEntry[9]
-//                    it[hole11] = scoreBookEntry[10]
-//                    it[hole12] = scoreBookEntry[11]
-//                    it[hole13] = scoreBookEntry[12]
-//                    it[hole14] = scoreBookEntry[13]
-//                    it[hole15] = scoreBookEntry[14]
-//                    it[hole16] = scoreBookEntry[15]
-//                    it[hole17] = scoreBookEntry[16]
-//                    it[hole18] = scoreBookEntry[17]
-//                }
-//            }
-//            getScoreBookByGameId(scoreBook.gameId)!!
-            scoreBook
-//        }
+        override fun insertScoreBookPlayer(gameId: Int, addedPlayerId: Int, courseId: Int): Unit = transaction {
 
-//        override fun deleteScoreBook(gameId: Int): Boolean = transaction {
-//            ScoreBookTable.deleteWhere { ScoreBookTable.gameId eq gameId } > 0
-//        }
+            val query = PlayerScoreTable.select { PlayerScoreTable.gameId eq gameId and (PlayerScoreTable.playerId eq addedPlayerId) }
+            if (!query.empty()) return@transaction
+
+            val numberOfHoles = courseDao.getCourseById(courseId)?.numberOfHoles ?: throw GBException(GBException.COURSE_NOT_FIND_MESSAGE)
+
+            val entityId = PlayerScoreTable.insertAndGetId {
+                it[this.playerId] = addedPlayerId
+                it[PlayerScoreTable.gameId] = gameId
+                it[netSum] = ""
+            }
+
+            ScoreDetailsTable.batchInsert(List(numberOfHoles) { index -> index + 1 }) { index ->
+                this[score] = 0
+                this[net] = ""
+                this[holeNumber] = index
+                this[playerScoreId] = entityId
+            }
+        }
+
+        override fun deleteScoreBookPlayer(gameId: Int, playerId: Int) = transaction {
+            PlayerScoreTable.deleteWhere { PlayerScoreTable.gameId eq gameId  and (PlayerScoreTable.playerId eq playerId)} > 0
+        }
+
+        override fun updateScoreBook(gameId: Int, scoreBook: ScoreBook): ScoreBook = transaction {
+            getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+
+            scoreBook.playerScores.forEach { playerScore ->
+                playerDao.getPlayerByUsername(playerScore.name) ?: throw GBException(GBException.PLAYER_NOT_FIND_MESSAGE)
+
+                PlayerScoreTable.update({ PlayerScoreTable.id eq playerScore.id }) {
+                    it[netSum] = playerScore.netSum
+                }
+
+                var index = 1 // TODO check insert of exising values and then test everything
+                ScoreDetailsTable.batchInsert(playerScore.scores) { scoreDetails ->
+                    this[score] = scoreDetails.score
+                    this[net] = scoreDetails.net
+                    this[holeNumber] = index
+                    this[playerScoreId] = playerScore.id
+
+                    index++
+                }
+            }
+            getScoreBookByGameId(gameId)!!
+        }
+
+        override fun deleteScoreBook(gameId: Int): Boolean = transaction {
+            PlayerScoreTable.deleteWhere { PlayerScoreTable.gameId eq gameId } > 0
+        }
 
     }
 

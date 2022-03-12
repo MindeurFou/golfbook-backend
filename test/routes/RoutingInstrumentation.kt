@@ -4,9 +4,9 @@ import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.Game
-import com.mindeurfou.model.game.local.GameDetails
 import com.mindeurfou.model.game.outgoing.GameDetailsNetworkEntity
-import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.local.ScoreBook
+import com.mindeurfou.model.game.outgoing.ScoreBookNetworkEntity
 import com.mindeurfou.model.game.outgoing.ScoringSystem
 import com.mindeurfou.model.player.incoming.PostPlayerBody
 import com.mindeurfou.model.player.incoming.PutPlayerBody
@@ -63,7 +63,7 @@ object RoutingInstrumentation {
         "Parcours du test",
         listOf(3, 3, 4, 4, 4, 4, 4, 4, 4),
         listOf(),
-        ScoreBook(listOf())
+        ScoreBookNetworkEntity(listOf())
     )
 
     fun postGameBody() = PostGameBody(

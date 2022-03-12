@@ -7,18 +7,17 @@ import com.mindeurfou.database.course.CourseTable
 import com.mindeurfou.database.game.GameDao
 import com.mindeurfou.database.game.GameDaoImpl
 import com.mindeurfou.database.game.GameTable
-import com.mindeurfou.database.game.scorebook.ScoreBookTable
+import com.mindeurfou.database.game.scorebook.PlayerScoreTable
+import com.mindeurfou.database.game.scorebook.ScoreDetailsTable
 import com.mindeurfou.database.hole.HoleTable
 import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
 import com.mindeurfou.model.GBState
-import com.mindeurfou.model.course.outgoing.CourseDetails
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
-import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.local.GameDetails
-import com.mindeurfou.model.game.outgoing.PlayerScore
-import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.local.PlayerScore
+import com.mindeurfou.model.game.local.ScoreBook
 import com.mindeurfou.model.game.outgoing.ScoringSystem
 import com.mindeurfou.model.player.outgoing.Player
 import com.mindeurfou.utils.GBException
@@ -207,13 +206,15 @@ class GameDaoTest : BaseDaoTest(){
             val scoreBook = ScoreBook(
                 listOf(
                     PlayerScore(
-                        players[0].name,
+                        1,
+                        players[0].username,
                         listOf(),
                         "",
                         ""
                     ),
                     PlayerScore(
-                        players[0].name,
+                        2,
+                        players[0].username,
                         listOf(),
                         "",
                         ""
@@ -277,7 +278,8 @@ fun deleteGamePlayer() = withBaseTestApplication {
         SchemaUtils.drop(GameTable)
         SchemaUtils.drop(CourseTable)
         SchemaUtils.drop(HoleTable)
-        SchemaUtils.drop(ScoreBookTable)
+        SchemaUtils.drop(PlayerScoreTable)
+        SchemaUtils.drop(ScoreDetailsTable)
         SchemaUtils.drop(PlayerGameAssociation)
     }
 
@@ -285,7 +287,8 @@ fun deleteGamePlayer() = withBaseTestApplication {
         SchemaUtils.create(GameTable)
         SchemaUtils.create(CourseTable)
         SchemaUtils.create(HoleTable)
-        SchemaUtils.create(ScoreBookTable)
+        SchemaUtils.create(PlayerScoreTable)
+        SchemaUtils.create(ScoreDetailsTable)
         SchemaUtils.create(PlayerGameAssociation)
     }
 }

@@ -7,11 +7,13 @@ import com.mindeurfou.database.player.PlayerDao
 import com.mindeurfou.database.player.PlayerDaoImpl
 import com.mindeurfou.model.GBState
 import com.mindeurfou.model.game.GameNetworkMapper
+import com.mindeurfou.model.game.GameNetworkMapper.toNetworkEntity
 import com.mindeurfou.model.game.incoming.PostGameBody
 import com.mindeurfou.model.game.incoming.PutGameBody
 import com.mindeurfou.model.game.outgoing.Game
 import com.mindeurfou.model.game.outgoing.GameDetailsNetworkEntity
-import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.local.ScoreBook
+import com.mindeurfou.model.game.outgoing.ScoreBookNetworkEntity
 
 class GameService : ServiceNotification() {
 
@@ -68,7 +70,7 @@ class GameService : ServiceNotification() {
 		val gameIsFull = gameDetails.players.size >= 4
 
 		return if (!playerInGame && !gameIsFull)
-			GameNetworkMapper.toGameDetailsNetworkEntity(gameDao.addGamePlayer(gameId, playerId))
+			GameNetworkMapper.toGameDetailsNetworkEntity(gameDao.addGamePlayer(gameId, playerId, gameDetails.courseId))
 		else
 			GameNetworkMapper.toGameDetailsNetworkEntity(gameDetails)
 	}
@@ -84,15 +86,15 @@ class GameService : ServiceNotification() {
 			gameDao.deleteGamePlayer(gameId, playerId)
 	}
 
-	fun updateScoreBook(gameId: Int, scoreBook: ScoreBook): ScoreBook {
+	fun updateScoreBook(gameId: Int, scoreBook: ScoreBook): ScoreBookNetworkEntity {
 		val gameDetails = gameDao.getGameById(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 		if (gameDetails.state != GBState.PENDING) throw GBException(GBException.INVALID_OPERATION_MESSAGE)
 
-		return gameDao.updateScoreBook(scoreBook)
+		return gameDao.updateScoreBook(gameId, scoreBook).toNetworkEntity()
 	}
 
-	fun getScoreBookByGameId(gameId: Int): ScoreBook {
-		return gameDao.getScoreBookByGameId(gameId) ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
+	fun getScoreBookByGameId(gameId: Int): ScoreBookNetworkEntity {
+		return gameDao.getScoreBookByGameId(gameId)?.toNetworkEntity() ?: throw GBException(GBException.GAME_NOT_FIND_MESSAGE)
 	}
 
 	fun getGamesByPlayerId(playerId: Int): List<Game>? =

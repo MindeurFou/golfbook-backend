@@ -2,7 +2,7 @@ package com.mindeurfou.database.game
 
 import com.mindeurfou.database.course.CourseTable
 import com.mindeurfou.model.game.local.GameDetails
-import com.mindeurfou.model.game.outgoing.ScoreBook
+import com.mindeurfou.model.game.local.ScoreBook
 import com.mindeurfou.model.player.outgoing.Player
 import org.jetbrains.exposed.sql.ResultRow
 

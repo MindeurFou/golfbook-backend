@@ -2,6 +2,8 @@
 'https://plantuml.com/class-diagram
 
 enum GBState {
+    INIT
+    STARTING
     PENDING
     DONE
 }
@@ -13,21 +15,27 @@ class Player {
     drawableResourceId : Int
 }
 
-interface ScoringStrategy {
-    calculateScores()
-}
+'class LeaderBoard {
+'    leaderBoard : map<String, Int>
+'}
+'
+'class Tournament {
+'    name : String
+'    state : GBState
+'}
 
-class LeaderBoard {
-    leaderBoard : map<String, Int>
-}
-
-class Tournament {
+class PlayerScore {
     name : String
-    state : GBState
+    scoreSum : Int
+    netSum : String
+}
+
+class ScoreDetails {
+    score : Int
+    net : String
 }
 
 class Game {
-    scoreBook : map<String, List<Int>>
     state : GBState
     currentHole : Int
 }
@@ -49,9 +57,11 @@ class Hole {
 Course "1" *-- "many" Hole
 Game "many" *-- "many" Player
 Game "many" *-- "1" Course
-Tournament "1" *-- "many" Game
-Tournament "1" *-- "1" LeaderBoard
-ScoringStrategy <|.. LeaderBoard
+Game "1" *-- "many" PlayerScore
+PlayerScore "1" *-- "many" ScoreDetails
+'Tournament "1" *-- "many" Game
+'Tournament "1" *-- "1" LeaderBoard
+'ScoringStrategy <|.. LeaderBoard
 
 
 @enduml
