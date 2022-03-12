@@ -4,6 +4,7 @@ import com.mindeurfou.model.course.incoming.PostCourseBody
 import com.mindeurfou.model.course.incoming.PutCourseBody
 import com.mindeurfou.service.CourseService
 import com.mindeurfou.utils.GBException
+import com.mindeurfou.utils.GBHttpStatusCode
 import com.mindeurfou.utils.addCacheHeader
 import io.ktor.application.*
 import io.ktor.http.*
@@ -60,6 +61,8 @@ fun Route.courseRouting() {
                 call.respond(courseDetails)
             } catch (e: SerializationException) {
                 call.respond(HttpStatusCode.BadRequest)
+            } catch (e: GBException) {
+                call.respond(GBHttpStatusCode.valueA, e.message)
             }
         }
 

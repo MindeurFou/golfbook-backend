@@ -15,6 +15,7 @@ class CourseService {
     private val courseDao: CourseDao = CourseDaoImpl()
 
     fun addNewCourse(postCourseBody: PostCourseBody) : CourseDetailsNetworkEntity {
+        if (courseDao.getCourseByName(postCourseBody.name) != null) throw GBException(GBException.COURSE_NAME_ALREADY_TAKEN)
         val courseId = courseDao.insertCourse(postCourseBody)
         return CourseNetworkMapper.toCourseDetailsNetworkMapper(courseDao.getCourseById(courseId)!!)
     }
